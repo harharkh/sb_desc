@@ -53,7 +53,7 @@
   }                                                             \
 } while (0)
 
-/// Calls `free` for every vector in the argument list.
+/// Calls `free` for every pointer in the argument list.
 ///
 /// # Parameters
 /// - `...`: pointers to be freed
@@ -82,7 +82,7 @@
 ///   SB_FREE_ALL(c, d);
 /// }
 /// ```
-#define SB_FREE_ALL(...) do {                           \
+#define SB_FREE_ALL(...) do {                        \
   void * sentinel = (int []){0};                     \
   void ** list = (void * []){__VA_ARGS__, sentinel}; \
   for (size_t a = 0; list[a] != sentinel; ++a) {     \
