@@ -8,16 +8,15 @@ INCL_DIR_OPT =
 LIBS = -lm -lcblas -llapack
 LIBS_DIR_OPT = 
 
-LIBRARY = libgromov_wasser.a
+LIBRARY = libsb_descriptors.a
 LIBRARY_DIR = /usr/local/lib
-HEADERS_DIR = /usr/local/include/gromov_wasser
-EXAMPLE = gromov_wasser
+HEADERS_DIR = /usr/local/include/sb_descriptors
+EXAMPLE = sb_example
 
 #------------------------
 # Source code for project
 #------------------------
-SRCS = dselect.c eigen.c graphs.c gromov.c matrix.c newton.c utility.c \
-			 vector.c wasserstein.c
+SRCS = descriptors.c matrix.c sbessel.c sbesselz.c utility.c vector.c 
 EXAMPLE_SRCS = example.c
 
 #------------------------
@@ -26,12 +25,6 @@ EXAMPLE_SRCS = example.c
 CC   	    = gcc
 FLAGS     = -std=c11 -O3
 DBG_FLAGS = -g -Wall -Wextra -Wfatal-errors
-
-#------------------------
-# Additional options required for gw_matlab.c
-#------------------------
-# FLAGS     += -fpic -DGW_BLAS_INT64
-# DBG_FLAGS += -fpic -DGW_BLAS_INT64
 
 OBJS = $(patsubst %.c, $(SRC_DIR)/%.o, $(SRCS))
 DBG_OBJS = $(patsubst %.c, $(SRC_DIR)/%.do, $(SRCS))
