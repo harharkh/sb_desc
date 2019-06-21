@@ -10,13 +10,13 @@ LIBS_DIR_OPT =
 
 LIBRARY = libsb_descriptors.a
 LIBRARY_DIR = /usr/local/lib
-HEADERS_DIR = /usr/local/include/sb_descriptors
+HEADERS_DIR = /usr/local/include/sb_desc
 EXAMPLE = sb_example
 
 #------------------------
 # Source code for project
 #------------------------
-SRCS = descriptors.c matrix.c sbessel.c sbesselz.c utility.c vector.c 
+SRCS = sb_desc.c matrix.c sbessel.c sbesselz.c utility.c vector.c 
 EXAMPLE_SRCS = example.c
 
 #------------------------
@@ -30,7 +30,7 @@ OBJS = $(patsubst %.c, $(SRC_DIR)/%.o, $(SRCS))
 DBG_OBJS = $(patsubst %.c, $(SRC_DIR)/%.do, $(SRCS))
 EXAMPLE_OBJS = $(patsubst %.c, $(SRC_DIR)/%.o, $(EXAMPLE_SRCS))
 
-HEADERS = $(wildcard $(SRC_DIR)/gw_*.h)
+HEADERS = $(wildcard $(SRC_DIR)/sb_*.h)
 
 LIBS += $(patsubst lib%.a, -l%, $(LIBRARY))
 LIBS_DIR_OPT += -L$(LIBRARY_DIR)
@@ -56,7 +56,7 @@ debug : $(DBG_OBJS)
 install :
 	@mkdir -p $(LIBRARY_DIR) && mkdir -p $(HEADERS_DIR);                         \
 	if [ -f $(LIBRARY) ]; then                                                   \
-		if cp $(LIBRARY) $(LIBRARY_DIR) && cp $(SRC_DIR)/gw_*.h $(HEADERS_DIR); then \
+		if cp $(LIBRARY) $(LIBRARY_DIR) && cp $(SRC_DIR)/sb_*.h $(HEADERS_DIR); then \
 			echo "Installed library to $(LIBRARY_DIR) and headers to $(HEADERS_DIR)";\
 		else                                                                       \
 			echo "Installation failed. Maybe you should try 'sudo make install'?";   \
@@ -69,7 +69,7 @@ install :
 # make uninstall
 #---------------------------
 uninstall :
-	@if rm -f $(LIB_PATH) $(HEADERS_DIR)/gw_*.h; then                            \
+	@if rm -f $(LIB_PATH) $(HEADERS_DIR)/sb_*.h; then                            \
 		echo "Uninstalled library in $(LIBRARY_DIR) and headers in $(HEADERS_DIR)";\
 	else                                                                         \
 		echo "Uninstallation failed. Maybe you should try 'sudo make uninstall'?"; \

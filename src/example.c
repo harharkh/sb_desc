@@ -7,7 +7,7 @@
 
 #include <stdio.h>      // printf
 #include <stdint.h>     // uint32_t
-#include "sb_descrip.h" // sb_descriptors
+#include "sb_desc.h"    // sb_descriptors
 #include "sb_matrix.h"  // sb_mat_of_arr
 #include "sb_structs.h" // sb_mat
 #include "sb_utility.h" // sb_srandn

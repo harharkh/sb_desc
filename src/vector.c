@@ -1548,7 +1548,7 @@ sb_vec * sb_vec_pdiv(sb_vec * restrict v, const sb_vec * restrict w) {
 }
 
 /// Performs the operation \f$\mathbf{r} x + y\f$ where `x` and `y` are scalars
-/// and `r` is modified (x result add y). 
+/// and `r` is modified (result x add y). 
 ///
 /// # Parameters
 /// - `r`: pointer to the vector
@@ -1722,79 +1722,6 @@ sb_vec * sb_vec_rvsw(
   }
 #ifdef SAFE_FINITE
   SB_CHK_ERR(!sb_vec_is_finite(r), abort(), "sb_vec_rvsw: elements not finite");
-#endif
-  return r;
-}
-
-/// Performs \f$\mathbf{r} \oslash (\mathbf{v} \oslash \mathbf{w})\f$ where `v`
-/// and `w` are vectors, \f$\oslash\f$ is pointwise division, and `r` is
-/// modified (result divide paren v divide w paren). `r`, `v` and `w` must not
-/// overlap in memory.
-///
-/// # Parameters
-/// - `r`: pointer to the first vector
-/// - `v`: pointer to the second vector
-/// - `w`: pointer to the third vector
-///
-/// # Returns
-/// A copy of `r`
-/// 
-/// # Performance
-/// The following preprocessor definitions (usually in `safety.h`) enable 
-/// various safety checks:
-/// - `SAFE_MEMORY`: `r`, `v` and `w` are not `NULL`
-/// - `SAFE_LAYOUT`: `r`, `v` and `w` have the same layout
-/// - `SAFE_LENGTH`: `r`, `v` and `w` have the same length
-/// - `SAFE_FINITE`: elements of `r` are finite
-///
-/// # Examples
-/// ```
-/// #include "sb_structs.h"
-/// #include "sb_vector.h"
-///
-/// int main(void) {
-///   double a[] = {1., 4., 2., 8., 5.};
-///   sb_vec * r = sb_vec_of_arr(a,     3, 'r');
-///   sb_vec * v = sb_vec_of_arr(a + 1, 3, 'r');
-///   sb_vec * w = sb_vec_of_arr(a + 2, 3, 'r');
-/// 
-///   // Pointwise division of r by ratio of v and w
-///   sb_vec_print(r, "r before: ", "%g");
-///   sb_vec_rdpvdwp(r, v, w);
-///   sb_vec_print(r, "r after: ", "%g");
-///
-///   SB_VEC_FREE_ALL(r, v, w);
-/// }
-/// ```
-sb_vec * sb_vec_rdpvdwp(
-    sb_vec * restrict r,
-    const sb_vec * restrict v,
-    const sb_vec * restrict w) {
-#ifdef SAFE_MEMORY
-  SB_CHK_ERR(!r, abort(), "sb_vec_rdpvdwp: r cannot be NULL");
-  SB_CHK_ERR(!v, abort(), "sb_vec_rdpvdwp: v cannot be NULL");
-  SB_CHK_ERR(!w, abort(), "sb_vec_rdpvdwp: w cannot be NULL");
-#endif
-#ifdef SAFE_LAYOUT
-  SB_CHK_ERR(r->layout != v->layout, abort(),
-      "sb_vec_rdpvdwp: r and v must have same layout");
-  SB_CHK_ERR(r->layout != w->layout, abort(),
-      "sb_vec_rdpvdwp: r and w must have same layout");
-#endif
-#ifdef SAFE_LENGTH
-  SB_CHK_ERR(r->n_elem != v->n_elem, abort(),
-      "sb_vec_rdpvdwp: r and v must have same length");
-  SB_CHK_ERR(r->n_elem != w->n_elem, abort(),
-      "sb_vec_rdpvdwp: r and w must have same length");
-#endif
-  double * r_data = r->data;
-  double * v_data = v->data;
-  double * w_data = w->data;
-  for (size_t a = 0; a < r->n_elem; ++a) {
-    r_data[a] /= v_data[a] / w_data[a];
-  }
-#ifdef SAFE_FINITE
-  SB_CHK_ERR(!sb_vec_is_finite(r), abort(), "sb_vec_rdpvdwp: elements not finite");
 #endif
   return r;
 }

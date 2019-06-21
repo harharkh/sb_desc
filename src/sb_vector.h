@@ -109,11 +109,6 @@ sb_vec * sb_vec_rvsw(
     const sb_vec * restrict v,
     const sb_vec * restrict w);
 
-sb_vec * sb_vec_rdpvdwp(
-    sb_vec * restrict r,
-    const sb_vec * restrict v,
-    const sb_vec * restrict w);
-
 double sb_vec_sum (const sb_vec * v);
 double sb_vec_norm(const sb_vec * v);
 double sb_vec_dot (const sb_vec * restrict v, const sb_vec * restrict w);
