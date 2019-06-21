@@ -5,8 +5,8 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-//! \file gw_utility.h
-//! Contains type definitions, macros, and utility functions used by the gw_dist
+//! \file sb_utility.h
+//! Contains type definitions, macros, and utility functions used by the sb_dist
 //! project.
 
 #pragma once
@@ -35,20 +35,20 @@
 /// ```
 /// #include <stdio.h>
 /// #include <stdlib.h>
-/// #include "gw_utility.h"
+/// #include "sb_utility.h"
 ///
 /// int main(void) {
 ///   double numer = 1.;
 ///   double denom = 0.;
 ///
-///   GW_CHK_ERR(denom == 0., exit(1), "denominator must be nonzero");
+///   SB_CHK_ERR(denom == 0., exit(1), "denominator must be nonzero");
 ///   printf("%g / %g = %g\n", numer, denom, numer / denom);
 /// }
 /// ```
-#define GW_CHK_ERR(assertion, error_action, ...) do {           \
+#define SB_CHK_ERR(assertion, error_action, ...) do {           \
   if (assertion) {                                              \
-    fprintf(gw_error_log ? gw_error_log : stderr, __VA_ARGS__); \
-    fprintf(gw_error_log ? gw_error_log : stderr, "\n");        \
+    fprintf(sb_error_log ? sb_error_log : stderr, __VA_ARGS__); \
+    fprintf(sb_error_log ? sb_error_log : stderr, "\n");        \
     error_action;                                               \
   }                                                             \
 } while (0)
@@ -79,10 +79,10 @@
 /// 
 ///   printf("Second elements are: %d, %g\n", c[2], d[2]);
 /// 
-///   GW_FREE_ALL(c, d);
+///   SB_FREE_ALL(c, d);
 /// }
 /// ```
-#define GW_FREE_ALL(...) do {                           \
+#define SB_FREE_ALL(...) do {                           \
   void * sentinel = (int []){0};                     \
   void ** list = (void * []){__VA_ARGS__, sentinel}; \
   for (size_t a = 0; list[a] != sentinel; ++a) {     \
@@ -107,10 +107,10 @@
 /// int main(void) {
 ///   int a = -2;
 ///   int b =  4;
-///   printf("The maximum of %d and %d is: %d\n", a, b, GW_MAX(a, b));
+///   printf("The maximum of %d and %d is: %d\n", a, b, SB_MAX(a, b));
 /// }
 /// ```
-#define GW_MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define SB_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 /// Returns the minimum of the two arguments. Arguments should be comparable
 /// by the `<` operator and not have any side effects.
@@ -129,10 +129,10 @@
 /// int main(void) {
 ///   int a = -2;
 ///   int b =  4;
-///   printf("The minimum of %d and %d is: %d\n", a, b, GW_MIN(a, b));
+///   printf("The minimum of %d and %d is: %d\n", a, b, SB_MIN(a, b));
 /// }
 /// ```
-#define GW_MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define SB_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 /// Squares the value of `a`. Expression used for the argument should not have
 /// any side effects.
@@ -152,11 +152,11 @@
 ///   int x = 1;
 ///   int y = 4;
 ///   
-///   assert(GW_SQR(x) = 1);
-///   assert(GW_SQR(y) = 16);
+///   assert(SB_SQR(x) = 1);
+///   assert(SB_SQR(y) = 16);
 /// }
 /// ```
-#define GW_SQR(a) ((a) * (a))
+#define SB_SQR(a) ((a) * (a))
 
 /// Swaps the values of `a` and `b`. Expressions used for the arguments should
 /// not have any side effects.
@@ -180,27 +180,27 @@
 ///   int x = 1;
 ///   int y = 4;
 ///   
-///   GW_SWAP(x, y, tmp);
+///   SB_SWAP(x, y, tmp);
 ///   assert(x = 4);
 ///   
 ///   int * px = &x;
 ///   int * py = &y;
 ///   
-///   GW_SWAP(*px, *py, tmp);
+///   SB_SWAP(*px, *py, tmp);
 ///   assert(*px = 1);
 /// }
 /// ```
-#define GW_SWAP(a, b, c) do { (c) = (a); (a) = (b); (b) = (c); } while (0)
+#define SB_SWAP(a, b, c) do { (c) = (a); (a) = (b); (b) = (c); } while (0)
 
-/// Macro that starts a basic timer. Should be paired with `GW_TOC`. NOTE: Uses
-/// thread-local storage. Do not call `GW_TIC` and `GW_TOC` in different
+/// Macro that starts a basic timer. Should be paired with `SB_TOC`. NOTE: Uses
+/// thread-local storage. Do not call `SB_TIC` and `SB_TOC` in different
 /// threads.
 ///
 /// # Parameters
 /// No parameters
 ///
 /// # Extern Parameters
-/// - `tic_time`: `clock_t` holding the time at `GW_TIC`
+/// - `tic_time`: `clock_t` holding the time at `SB_TIC`
 /// 
 /// # Returns
 /// No return value
@@ -211,7 +211,7 @@
 /// #include "utility.h"
 ///
 /// int main(void) {
-///   GW_TIC;
+///   SB_TIC;
 ///   
 ///   int tmp;
 ///   int x = 1;
@@ -220,16 +220,16 @@
 ///   for (size_t a = 0; a < 1000000; ++a) {
 ///     int * px = &x;
 ///     int * py = &y;
-///     GW_SWAP(*px, *py, tmp);
+///     SB_SWAP(*px, *py, tmp);
 ///   }
 ///
-///   GW_TOC;
+///   SB_TOC;
 /// }
 /// ```
-#define GW_TIC do { gw_tic_time = clock(); } while (0)
+#define SB_TIC do { sb_tic_time = clock(); } while (0)
 
-/// Macro that stops a basic timer. Should be paired with `GW_TIC`. NOTE: Uses
-/// thread-local storage. Do not call `GW_TIC` and `GW_TOC` in different
+/// Macro that stops a basic timer. Should be paired with `SB_TIC`. NOTE: Uses
+/// thread-local storage. Do not call `SB_TIC` and `SB_TOC` in different
 /// threads.
 ///
 /// # Parameters
@@ -244,7 +244,7 @@
 /// #include "utility.h"
 ///
 /// int main(void) {
-///   GW_TIC;
+///   SB_TIC;
 ///   
 ///   int tmp;
 ///   int x = 1;
@@ -253,22 +253,22 @@
 ///   for (size_t a = 0; a < 1000000; ++a) {
 ///     int * px = &x;
 ///     int * py = &y;
-///     GW_SWAP(*px, *py, tmp);
+///     SB_SWAP(*px, *py, tmp);
 ///   }
 ///
-///   GW_TOC;
+///   SB_TOC;
 /// }
 /// ```
-#define GW_TOC do {                                      \
+#define SB_TOC do {                                      \
   printf(                                                \
       "Time elapsed: %.2f ms\n",                         \
-      1000. * (clock() - gw_tic_time) / CLOCKS_PER_SEC); \
+      1000. * (clock() - sb_tic_time) / CLOCKS_PER_SEC); \
 } while (0)
 
-extern FILE * gw_error_log;
-extern _Thread_local clock_t gw_tic_time;
+extern FILE * sb_error_log;
+extern _Thread_local clock_t sb_tic_time;
 
-void gw_set_error_log(FILE * f);
+void sb_set_error_log(FILE * f);
 
-void   gw_srandn(uint32_t seed);
-double gw_randn (void);
+void   sb_srandn(uint32_t seed);
+double sb_randn (void);

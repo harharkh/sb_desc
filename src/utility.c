@@ -7,7 +7,7 @@
 
 //! \file utility.c
 //! Contains type definitions, macros, and utility functions used by the
-//! gw_dist project.
+//! sb_dist project.
 
 #include <math.h>    // cos
 #include <stdbool.h> // bool
@@ -15,13 +15,13 @@
 #include <stdio.h>   // FILE, NULL
 #include <stdlib.h>  // rand
 #include <time.h>    // clock_t
-#include "gw_utility.h"
+#include "sb_utility.h"
 
-FILE * gw_error_log = NULL;
-_Thread_local clock_t gw_tic_time;
+FILE * sb_error_log = NULL;
+_Thread_local clock_t sb_tic_time;
 static _Thread_local uint32_t randn_state;
 
-/// Sets the error log used by `GW_CHK_ERR`. Internally uses an `extern`
+/// Sets the error log used by `SB_CHK_ERR`. Internally uses an `extern`
 /// variable, only needs to be called once (usually in `main`). NOTE: This is 
 /// not thread safe by design. If you call this, be certain to do so before any
 /// threads are spawned.
@@ -36,28 +36,28 @@ static _Thread_local uint32_t randn_state;
 /// ```
 /// #include <stdio.h>
 /// #include <stdlib.h>
-/// #include "gw_utility.h"
+/// #include "sb_utility.h"
 /// 
 /// int main(void) {
 ///   double numer = 1.;
 ///   double denom = 0.;
 /// 
 ///   FILE * file = fopen("error_log.txt", "w");
-///   gw_set_error_log(file);
+///   sb_set_error_log(file);
 /// 
-///   GW_CHK_ERR(denom == 0., exit(1), "denominator must be nonzero");
+///   SB_CHK_ERR(denom == 0., exit(1), "denominator must be nonzero");
 ///   printf("%g / %g = %g\n", numer, denom, numer / denom);
 /// 
 ///   fclose(file);
 /// }
 /// ```
-void gw_set_error_log(FILE * f) {
-  gw_error_log = f;
+void sb_set_error_log(FILE * f) {
+  sb_error_log = f;
 }
 
-/// Sets the internal state required by `gw_randn()` to generate normally
+/// Sets the internal state required by `sb_randn()` to generate normally
 /// distributed random numbers. NOTE: Uses thread-local storage, and should be
-/// called once per thread before any code that uses `gw_randn()`.
+/// called once per thread before any code that uses `sb_randn()`.
 ///
 /// # Parameters
 /// - `seed`: `uint32_t` containing the seed value
@@ -69,24 +69,24 @@ void gw_set_error_log(FILE * f) {
 /// ```
 /// #include <stdio.h>
 /// #include <stdlib.h>
-/// #include "gw_utility.h"
+/// #include "sb_utility.h"
 /// 
 /// int main(void) {
-///   gw_srandn(142857);
+///   sb_srandn(142857);
 ///
 ///   printf("Five normally distributed random numbers:\n");
 ///   for (size_t a = 0; a < 5; ++a) {
-///     printf("% .4f\n", gw_randn());
+///     printf("% .4f\n", sb_randn());
 ///   }
 /// }
 /// ```
-void gw_srandn(uint32_t seed) {
+void sb_srandn(uint32_t seed) {
   randn_state = seed;
 }
 
 /// Basic normally distributed random number generator that applies the
 /// Box--Muller transform to xorshift values. The internal state should be set
-/// by `gw_srandn()` before this function is called.
+/// by `sb_srandn()` before this function is called.
 ///
 /// # Parameters
 /// No parameters
@@ -98,18 +98,18 @@ void gw_srandn(uint32_t seed) {
 /// ```
 /// #include <stdio.h>
 /// #include <stdlib.h>
-/// #include "gw_utility.h"
+/// #include "sb_utility.h"
 /// 
 /// int main(void) {
-///   gw_srandn(142857);
+///   sb_srandn(142857);
 ///
 ///   printf("Five normally distributed random numbers:\n");
 ///   for (size_t a = 0; a < 5; ++a) {
-///     printf("% .4f\n", gw_randn());
+///     printf("% .4f\n", sb_randn());
 ///   }
 /// }
 /// ```
-double gw_randn(void) {
+double sb_randn(void) {
   // cast is higher precedence than addition
   static const double UINT32_MAX_P1 = (double) UINT32_MAX + 1.;
 

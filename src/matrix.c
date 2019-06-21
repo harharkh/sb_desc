@@ -18,10 +18,10 @@
 #include <stdio.h>      // EOF
 #include <stdlib.h>     // abort
 #include <string.h>     // memcpy
-#include "gw_structs.h" // gw_mat
-#include "gw_matrix.h"
-#include "gw_utility.h" // GW_CHK_ERR
-#include "gw_vector.h"  // gw_vec_is_finite
+#include "sb_structs.h" // sb_mat
+#include "sb_matrix.h"
+#include "sb_utility.h" // SB_CHK_ERR
+#include "sb_vector.h"  // sb_vec_is_finite
 #include "safety.h"
 
 /// Constructs a matrix with the required capacity.
@@ -31,33 +31,33 @@
 /// - `n_cols`: number of columns of the matrix
 ///
 /// # Returns
-/// A `gw_mat` pointer to the allocated matrix, or `NULL` if the allocation fails
+/// A `sb_mat` pointer to the allocated matrix, or `NULL` if the allocation fails
 /// 
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
-///   gw_mat * A = gw_mat_malloc(3, 3);
+///   sb_mat * A = sb_mat_malloc(3, 3);
 ///
 ///   // Fill the matrix with some values and print
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat_subcpy(A, 0, a, 9);
-///   gw_mat_print(A, "A: ", "%g");
+///   sb_mat_subcpy(A, 0, a, 9);
+///   sb_mat_print(A, "A: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_malloc(size_t n_rows, size_t n_cols) {
-  gw_mat * out = malloc(sizeof(gw_mat));
-  GW_CHK_ERR(!out, return NULL, "gw_mat_malloc: failed to allocate matrix");
+sb_mat * sb_mat_malloc(size_t n_rows, size_t n_cols) {
+  sb_mat * out = malloc(sizeof(sb_mat));
+  SB_CHK_ERR(!out, return NULL, "sb_mat_malloc: failed to allocate matrix");
 
   size_t n_elem = n_rows * n_cols;
 
   double * data = malloc(n_elem * sizeof(double));
-  GW_CHK_ERR(!data, free(out); return NULL,
-      "gw_mat_malloc: failed to allocate data");
+  SB_CHK_ERR(!data, free(out); return NULL,
+      "sb_mat_malloc: failed to allocate data");
 
   out->n_rows = n_rows;
   out->n_cols = n_cols;
@@ -75,37 +75,37 @@ gw_mat * gw_mat_malloc(size_t n_rows, size_t n_cols) {
 /// - `n_cols`: number of columns of the matrix
 ///
 /// # Returns
-/// A `gw_mat` pointer to the allocated matrix, or `NULL` if the allocation
+/// A `sb_mat` pointer to the allocated matrix, or `NULL` if the allocation
 /// fails
 /// 
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
-///   gw_mat * A = gw_mat_calloc(3, 3);
+///   sb_mat * A = sb_mat_calloc(3, 3);
 ///
 ///   // Initialized to zeros
-///   gw_mat_print(A, "A before: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
 ///
 ///   // Fill the matrix with some values and print
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat_subcpy(A, 0, a, 9);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_subcpy(A, 0, a, 9);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_calloc(size_t n_rows, size_t n_cols) {
-  gw_mat * out = malloc(sizeof(gw_mat));
-  GW_CHK_ERR(!out, return NULL, "gw_mat_calloc: failed to allocate matrix");
+sb_mat * sb_mat_calloc(size_t n_rows, size_t n_cols) {
+  sb_mat * out = malloc(sizeof(sb_mat));
+  SB_CHK_ERR(!out, return NULL, "sb_mat_calloc: failed to allocate matrix");
 
   size_t n_elem = n_rows * n_cols;
 
   double * data = calloc(n_elem, sizeof(double));
-  GW_CHK_ERR(!data, free(out); return NULL,
-      "gw_mat_calloc: failed to allocate data");
+  SB_CHK_ERR(!data, free(out); return NULL,
+      "sb_mat_calloc: failed to allocate data");
 
   out->n_rows = n_rows;
   out->n_cols = n_cols;
@@ -125,7 +125,7 @@ gw_mat * gw_mat_calloc(size_t n_rows, size_t n_cols) {
 /// - `n_cols`: number of columns of the matrix
 ///
 /// # Returns
-/// A `gw_mat` pointer to the allocated matrix, or `NULL` if the allocation
+/// A `sb_mat` pointer to the allocated matrix, or `NULL` if the allocation
 /// fails
 /// 
 /// # Performance
@@ -135,31 +135,31 @@ gw_mat * gw_mat_calloc(size_t n_rows, size_t n_cols) {
 /// 
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
 /// 
 ///   // Construct a matrix from the array
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_mat_print(A, "A: ", "%g");
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_mat_print(A, "A: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_of_arr(const double * a, size_t n_rows, size_t n_cols) {
+sb_mat * sb_mat_of_arr(const double * a, size_t n_rows, size_t n_cols) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!a, abort(), "gw_mat_of_arr: a cannot be NULL");
+  SB_CHK_ERR(!a, abort(), "sb_mat_of_arr: a cannot be NULL");
 #endif
-  gw_mat * out = malloc(sizeof(gw_mat));
-  GW_CHK_ERR(!out, return NULL, "gw_mat_of_arr: failed to allocate matrix");
+  sb_mat * out = malloc(sizeof(sb_mat));
+  SB_CHK_ERR(!out, return NULL, "sb_mat_of_arr: failed to allocate matrix");
 
   size_t n_elem = n_rows * n_cols;
 
   double * data = malloc(n_elem * sizeof(double));
-  GW_CHK_ERR(!data, free(out); return NULL,
-      "gw_mat_of_arr: failed to allocate data");
+  SB_CHK_ERR(!data, free(out); return NULL,
+      "sb_mat_of_arr: failed to allocate data");
 
   out->n_rows = n_rows;
   out->n_cols = n_cols;
@@ -176,7 +176,7 @@ gw_mat * gw_mat_of_arr(const double * a, size_t n_rows, size_t n_cols) {
 /// - `A`: pointer to the matrix to be copied
 ///
 /// # Returns
-/// A `gw_mat` pointer to the allocated matrix, or `NULL` if the allocation
+/// A `sb_mat` pointer to the allocated matrix, or `NULL` if the allocation
 /// fails
 /// 
 /// # Performance
@@ -186,39 +186,39 @@ gw_mat * gw_mat_of_arr(const double * a, size_t n_rows, size_t n_cols) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // `A` and `B` contain the same elements
-///   gw_mat_c * B = gw_mat_clone(A);
-///   gw_mat_print(B, "B before: ", "%g");
+///   sb_mat_c * B = sb_mat_clone(A);
+///   sb_mat_print(B, "B before: ", "%g");
 ///
 ///   // Fill `B` with some values and print
-///   gw_mat_subcpy(B, 0, a + 1, 3);
-///   gw_mat_print(B, "B after: ", "%g");
+///   sb_mat_subcpy(B, 0, a + 1, 3);
+///   sb_mat_print(B, "B after: ", "%g");
 ///
 ///   // `A` is unchanged
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-gw_mat * gw_mat_clone(const gw_mat * A) {
+sb_mat * sb_mat_clone(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_clone: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_clone: A cannot be NULL");
 #endif
-  gw_mat * out = malloc(sizeof(gw_mat));
-  GW_CHK_ERR(!out, return NULL, "gw_mat_clone: failed to allocate matrix");
+  sb_mat * out = malloc(sizeof(sb_mat));
+  SB_CHK_ERR(!out, return NULL, "sb_mat_clone: failed to allocate matrix");
 
   size_t n_elem = A->n_elem;
 
   double * data = malloc(n_elem * sizeof(double));
-  GW_CHK_ERR(!data, free(out); return NULL,
-      "gw_mat_clone: failed to allocate data");
+  SB_CHK_ERR(!data, free(out); return NULL,
+      "sb_mat_clone: failed to allocate data");
 
   *out = *A;
   out->data = memcpy(data, A->data, n_elem * sizeof(double));
@@ -241,23 +241,23 @@ gw_mat * gw_mat_clone(const gw_mat * A) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
 /// 
 ///   // Allocates a pointer to mat
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_mat_print(A, "A: ", "%g");
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_mat_print(A, "A: ", "%g");
 ///
-///   gw_mat_free(A);
+///   sb_mat_free(A);
 ///   // Pointer to `A` is now invalid
 /// }
 /// ```
-void gw_mat_free(gw_mat * A) {
+void sb_mat_free(sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_free: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_free: A cannot be NULL");
 #endif
   free(A->data);
   free(A);
@@ -279,24 +279,24 @@ void gw_mat_free(gw_mat * A) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///   
 ///   // Set all elements to zero
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_set_zero(A);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_set_zero(A);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_set_zero(gw_mat * A) {
+sb_mat * sb_mat_set_zero(sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_set_zero: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_set_zero: A cannot be NULL");
 #endif
   return memset(A->data, 0, A->n_elem * sizeof(double));
 }
@@ -317,24 +317,24 @@ gw_mat * gw_mat_set_zero(gw_mat * A) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///   
 ///   // Set all elements to 8.
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_set_all(A, 8.);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_set_all(A, 8.);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_set_all(gw_mat * A, double x) {
+sb_mat * sb_mat_set_all(sb_mat * A, double x) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_set_all: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_set_all: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
@@ -361,28 +361,28 @@ gw_mat * gw_mat_set_all(gw_mat * A, double x) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///   
 ///   // Set `A` to the identity
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_set_ident(A);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_set_ident(A);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_set_ident(gw_mat * A) {
+sb_mat * sb_mat_set_ident(sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_set_ident: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_set_ident: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_rows != A->n_cols, abort(),
-      "gw_mat_set_ident: A must be square");
+  SB_CHK_ERR(A->n_rows != A->n_cols, abort(),
+      "sb_mat_set_ident: A must be square");
 #endif
   double * data = A->data;
   size_t n_elem = A->n_elem;
@@ -416,37 +416,37 @@ gw_mat * gw_mat_set_ident(gw_mat * A) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_malloc(3, 'r');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_malloc(3, 'r');
 /// 
 ///   // Set v to the first row
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_get_row(v, A, 1);
-///   gw_vec_print(v, "v: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_get_row(v, A, 1);
+///   sb_vec_print(v, "v: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_vec * gw_mat_get_row(gw_vec * restrict v, const gw_mat * restrict A, size_t i) {
+sb_vec * sb_mat_get_row(sb_vec * restrict v, const sb_mat * restrict A, size_t i) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!v, abort(), "gw_mat_get_row: v cannot be NULL");
-  GW_CHK_ERR(!A, abort(), "gw_mat_get_row: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_get_row: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_get_row: A cannot be NULL");
 #endif
 #ifdef SAFE_LAYOUT
-  GW_CHK_ERR(v->layout != 'r', abort(), "gw_mat_get_row: v must be a row vector");
+  SB_CHK_ERR(v->layout != 'r', abort(), "sb_mat_get_row: v must be a row vector");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(v->n_elem != A->n_cols, abort(),
-      "gw_mat_get_row: v and A must have same number of columns");
-  GW_CHK_ERR(i >= A->n_rows, abort(),
-      "gw_mat_get_row: invalid row index");
+  SB_CHK_ERR(v->n_elem != A->n_cols, abort(),
+      "sb_mat_get_row: v and A must have same number of columns");
+  SB_CHK_ERR(i >= A->n_rows, abort(),
+      "sb_mat_get_row: invalid row index");
 #endif
   cblas_dcopy(A->n_cols, A->data + i, A->n_rows, v->data, 1);
   return v;
@@ -473,37 +473,37 @@ gw_vec * gw_mat_get_row(gw_vec * restrict v, const gw_mat * restrict A, size_t i
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_malloc(3, 'c');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_malloc(3, 'c');
 /// 
 ///   // Set v to the first column
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_get_col(v, A, 1);
-///   gw_vec_print(v, "v: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_get_col(v, A, 1);
+///   sb_vec_print(v, "v: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_vec * gw_mat_get_col(gw_vec * restrict v, const gw_mat * restrict A, size_t j) {
+sb_vec * sb_mat_get_col(sb_vec * restrict v, const sb_mat * restrict A, size_t j) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!v, abort(), "gw_mat_get_col: v cannot be NULL");
-  GW_CHK_ERR(!A, abort(), "gw_mat_get_col: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_get_col: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_get_col: A cannot be NULL");
 #endif
 #ifdef SAFE_LAYOUT
-  GW_CHK_ERR(v->layout != 'c', abort(), "gw_mat_get_col: v must be a column vector");
+  SB_CHK_ERR(v->layout != 'c', abort(), "sb_mat_get_col: v must be a column vector");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(v->n_elem != A->n_rows, abort(),
-      "gw_mat_get_col: v and A must have same number of rows");
-  GW_CHK_ERR(j >= A->n_cols, abort(),
-      "gw_mat_get_col: invalid column index");
+  SB_CHK_ERR(v->n_elem != A->n_rows, abort(),
+      "sb_mat_get_col: v and A must have same number of rows");
+  SB_CHK_ERR(j >= A->n_cols, abort(),
+      "sb_mat_get_col: invalid column index");
 #endif
   size_t n_rows = A->n_rows;
   memcpy(v->data, A->data + j * n_rows, n_rows * sizeof(double));
@@ -529,34 +529,34 @@ gw_vec * gw_mat_get_col(gw_vec * restrict v, const gw_mat * restrict A, size_t j
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_malloc(3, 'c');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_malloc(3, 'c');
 /// 
 ///   // Set v to the main diagonal
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_get_diag(v, A);
-///   gw_vec_print(v, "v: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_get_diag(v, A);
+///   sb_vec_print(v, "v: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_vec * gw_mat_get_diag(gw_vec * restrict v, const gw_mat * restrict A) {
+sb_vec * sb_mat_get_diag(sb_vec * restrict v, const sb_mat * restrict A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!v, abort(), "gw_mat_get_diag: v cannot be NULL");
-  GW_CHK_ERR(!A, abort(), "gw_mat_get_diag: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_get_diag: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_get_diag: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_rows != A->n_cols, abort(),
-      "gw_mat_get_diag: A must be square");
-  GW_CHK_ERR(v->n_elem != A->n_rows, abort(),
-      "gw_mat_get_diag: number of elements in v should equal number of rows of A");
+  SB_CHK_ERR(A->n_rows != A->n_cols, abort(),
+      "sb_mat_get_diag: A must be square");
+  SB_CHK_ERR(v->n_elem != A->n_rows, abort(),
+      "sb_mat_get_diag: number of elements in v should equal number of rows of A");
 #endif
   size_t n_rows = A->n_rows;
   cblas_dcopy(n_rows, A->data, n_rows + 1, v->data, 1);
@@ -584,38 +584,38 @@ gw_vec * gw_mat_get_diag(gw_vec * restrict v, const gw_mat * restrict A) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_of_arr(a + 2, 3, 'r');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_of_arr(a + 2, 3, 'r');
 /// 
 ///   // Set the first row to v
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_vec_print(v, "v: ", "%g");
-///   gw_mat_set_row(A, 1, v);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_vec_print(v, "v: ", "%g");
+///   sb_mat_set_row(A, 1, v);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_mat * gw_mat_set_row(gw_mat * restrict A, size_t i, const gw_vec * restrict v) {
+sb_mat * sb_mat_set_row(sb_mat * restrict A, size_t i, const sb_vec * restrict v) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_set_row: A cannot be NULL");
-  GW_CHK_ERR(!v, abort(), "gw_mat_set_row: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_set_row: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_set_row: v cannot be NULL");
 #endif
 #ifdef SAFE_LAYOUT
-  GW_CHK_ERR(v->layout != 'r', abort(), "gw_mat_set_row: v must be a row vector");
+  SB_CHK_ERR(v->layout != 'r', abort(), "sb_mat_set_row: v must be a row vector");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(v->n_elem != A->n_cols, abort(),
-      "gw_mat_set_row: v and A must have same number of columns");
-  GW_CHK_ERR(i >= A->n_rows, abort(),
-      "gw_mat_set_row: invalid row index");
+  SB_CHK_ERR(v->n_elem != A->n_cols, abort(),
+      "sb_mat_set_row: v and A must have same number of columns");
+  SB_CHK_ERR(i >= A->n_rows, abort(),
+      "sb_mat_set_row: invalid row index");
 #endif
   cblas_dcopy(A->n_cols, v->data, 1, A->data + i, A->n_rows);
   return A;
@@ -642,38 +642,38 @@ gw_mat * gw_mat_set_row(gw_mat * restrict A, size_t i, const gw_vec * restrict v
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_of_arr(a + 2, 3, 'c');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_of_arr(a + 2, 3, 'c');
 /// 
 ///   // Set the first column to v
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_vec_print(v, "v: ", "%g");
-///   gw_mat_set_col(A, 1, v);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_vec_print(v, "v: ", "%g");
+///   sb_mat_set_col(A, 1, v);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_mat * gw_mat_set_col(gw_mat * restrict A, size_t j, const gw_vec * restrict v) {
+sb_mat * sb_mat_set_col(sb_mat * restrict A, size_t j, const sb_vec * restrict v) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_set_col: A cannot be NULL");
-  GW_CHK_ERR(!v, abort(), "gw_mat_set_col: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_set_col: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_set_col: v cannot be NULL");
 #endif
 #ifdef SAFE_LAYOUT
-  GW_CHK_ERR(v->layout != 'c', abort(), "gw_mat_set_col: v must be a column vector");
+  SB_CHK_ERR(v->layout != 'c', abort(), "sb_mat_set_col: v must be a column vector");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(v->n_elem != A->n_rows, abort(),
-      "gw_mat_set_col: v and A must have same number of rows");
-  GW_CHK_ERR(j >= A->n_cols, abort(),
-      "gw_mat_set_col: invalid column index");
+  SB_CHK_ERR(v->n_elem != A->n_rows, abort(),
+      "sb_mat_set_col: v and A must have same number of rows");
+  SB_CHK_ERR(j >= A->n_cols, abort(),
+      "sb_mat_set_col: invalid column index");
 #endif
   size_t n_rows = A->n_rows;
   memcpy(A->data + j * n_rows, v->data, n_rows * sizeof(double));
@@ -699,35 +699,35 @@ gw_mat * gw_mat_set_col(gw_mat * restrict A, size_t j, const gw_vec * restrict v
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_of_arr(a + 2, 3, 'c');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_of_arr(a + 2, 3, 'c');
 /// 
 ///   // Set the main diagonal to v
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_vec_print(v, "v: ", "%g");
-///   gw_mat_set_diag(A, v);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_vec_print(v, "v: ", "%g");
+///   sb_mat_set_diag(A, v);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_mat * gw_mat_set_diag(gw_mat * restrict A, const gw_vec * restrict v) {
+sb_mat * sb_mat_set_diag(sb_mat * restrict A, const sb_vec * restrict v) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_get_diag: A cannot be NULL");
-  GW_CHK_ERR(!v, abort(), "gw_mat_get_diag: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_get_diag: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_get_diag: v cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_rows != A->n_cols, abort(),
-      "gw_mat_get_diag: A must be square");
-  GW_CHK_ERR(v->n_elem != A->n_rows, abort(),
-      "gw_mat_get_diag: number of elements in v should equal number of rows of A");
+  SB_CHK_ERR(A->n_rows != A->n_cols, abort(),
+      "sb_mat_get_diag: A must be square");
+  SB_CHK_ERR(v->n_elem != A->n_rows, abort(),
+      "sb_mat_get_diag: number of elements in v should equal number of rows of A");
 #endif
   size_t n_rows = A->n_rows;
   cblas_dcopy(n_rows, v->data, 1, A->data, n_rows + 1);
@@ -752,34 +752,34 @@ gw_mat * gw_mat_set_diag(gw_mat * restrict A, const gw_vec * restrict v) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2., 8.};
-///   gw_mat * A = gw_mat_of_arr(a,     3, 3);
-///   gw_mat * B = gw_mat_of_arr(a + 1, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a,     3, 3);
+///   sb_mat * B = sb_mat_of_arr(a + 1, 3, 3);
 ///
 ///   // Overwrite elements of `A` and print
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_print(B, "B before: ", "%g");
-///   gw_mat_memcpy(A, B);
-///   gw_mat_print(A, "A after: ", "%g");
-///   gw_mat_print(B, "B after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_print(B, "B before: ", "%g");
+///   sb_mat_memcpy(A, B);
+///   sb_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(B, "B after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-gw_mat * gw_mat_memcpy(gw_mat * restrict dest, const gw_mat * restrict src) {
+sb_mat * sb_mat_memcpy(sb_mat * restrict dest, const sb_mat * restrict src) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!dest, abort(), "gw_mat_memcpy: dest cannot be NULL");
-  GW_CHK_ERR(!src, abort(), "gw_mat_memcpy: src cannot be NULL");
+  SB_CHK_ERR(!dest, abort(), "sb_mat_memcpy: dest cannot be NULL");
+  SB_CHK_ERR(!src, abort(), "sb_mat_memcpy: src cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(dest->n_rows != src->n_rows, abort(),
-      "gw_mat_memcpy: dest and src must have same number of rows");
-  GW_CHK_ERR(dest->n_cols != src->n_cols, abort(),
-      "gw_mat_memcpy: dest and src must have same number of columns");
+  SB_CHK_ERR(dest->n_rows != src->n_rows, abort(),
+      "sb_mat_memcpy: dest and src must have same number of rows");
+  SB_CHK_ERR(dest->n_cols != src->n_cols, abort(),
+      "sb_mat_memcpy: dest and src must have same number of columns");
 #endif
   memcpy(dest->data, src->data, src->n_elem * sizeof(double));
   return dest;
@@ -806,33 +806,33 @@ gw_mat * gw_mat_memcpy(gw_mat * restrict dest, const gw_mat * restrict src) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///
 ///   // Overwrite elements of `A` and print
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_subcpy(A, 0, a + 1, 3);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_subcpy(A, 0, a + 1, 3);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_subcpy(
-    gw_mat * restrict A,
+sb_mat * sb_mat_subcpy(
+    sb_mat * restrict A,
     size_t i,
     const double * restrict a,
     size_t n) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_subcpy: A cannot be NULL");
-  GW_CHK_ERR(!a, abort(), "gw_mat_subcpy: a cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_subcpy: A cannot be NULL");
+  SB_CHK_ERR(!a, abort(), "sb_mat_subcpy: a cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_elem - i < n, abort(),
-      "gw_mat_subcpy: A does not have enough capacity");
+  SB_CHK_ERR(A->n_elem - i < n, abort(),
+      "sb_mat_subcpy: A does not have enough capacity");
 #endif
   memcpy(A->data + i, a, n * sizeof(double));
   return A;
@@ -857,38 +857,38 @@ gw_mat * gw_mat_subcpy(
 /// # Examples
 /// ```
 /// #include "matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2., 8.};
-///   gw_mat * A = gw_mat_of_arr(a,     3, 3);
-///   gw_mat * B = gw_mat_of_arr(a + 1, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a,     3, 3);
+///   sb_mat * B = sb_mat_of_arr(a + 1, 3, 3);
 /// 
 ///   // Print matrices before and after
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_print(B, "B before: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_print(B, "B before: ", "%g");
 ///
-///   gw_mat_swap(A, B);
+///   sb_mat_swap(A, B);
 ///
-///   gw_mat_print(A, "A after: ", "%g");
-///   gw_mat_print(B, "B after: ", "%g");
+///   sb_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(B, "B after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-void gw_mat_swap(gw_mat * restrict A, gw_mat * restrict B) {
+void sb_mat_swap(sb_mat * restrict A, sb_mat * restrict B) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_swap: A cannot be NULL");
-  GW_CHK_ERR(!B, abort(), "gw_mat_swap: B cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_swap: A cannot be NULL");
+  SB_CHK_ERR(!B, abort(), "sb_mat_swap: B cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_rows != B->n_rows, abort(),
-      "gw_mat_swap: A and B must have same number of rows");
-  GW_CHK_ERR(A->n_cols != B->n_cols, abort(),
-      "gw_mat_swap: A and B must have same number of columns");
+  SB_CHK_ERR(A->n_rows != B->n_rows, abort(),
+      "sb_mat_swap: A and B must have same number of rows");
+  SB_CHK_ERR(A->n_cols != B->n_cols, abort(),
+      "sb_mat_swap: A and B must have same number of columns");
 #endif
   double * scratch;
-  GW_SWAP(A->data, B->data, scratch);
+  SB_SWAP(A->data, B->data, scratch);
 }
 
 /// Swaps the `i`th and `j`th rows of the matrix `A`.
@@ -907,30 +907,30 @@ void gw_mat_swap(gw_mat * restrict A, gw_mat * restrict B) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Print matrix before and after
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_swap_row(A, 0, 1);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_swap_row(A, 0, 1);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_swap_row(gw_mat * A, size_t i, size_t j) {
+sb_mat * sb_mat_swap_row(sb_mat * A, size_t i, size_t j) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_swap_row: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_swap_row: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(i >= A->n_rows, abort(),
-      "gw_mat_swap_row: i must be a valid row index");
-  GW_CHK_ERR(j >= A->n_rows, abort(),
-      "gw_mat_swap_row: j must be a valid row index");
+  SB_CHK_ERR(i >= A->n_rows, abort(),
+      "sb_mat_swap_row: i must be a valid row index");
+  SB_CHK_ERR(j >= A->n_rows, abort(),
+      "sb_mat_swap_row: j must be a valid row index");
 #endif
   double * data = A->data;
   size_t n_rows = A->n_rows;
@@ -954,30 +954,30 @@ gw_mat * gw_mat_swap_row(gw_mat * A, size_t i, size_t j) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Print matrix before and after
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_swap_col(A, 0, 1);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_swap_col(A, 0, 1);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_swap_col(gw_mat * A, size_t i, size_t j) {
+sb_mat * sb_mat_swap_col(sb_mat * A, size_t i, size_t j) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_swap_row: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_swap_row: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(i >= A->n_cols, abort(),
-      "gw_mat_swap_row: i must be a valid column index");
-  GW_CHK_ERR(j >= A->n_cols, abort(),
-      "gw_mat_swap_row: j must be a valid column index");
+  SB_CHK_ERR(i >= A->n_cols, abort(),
+      "sb_mat_swap_row: i must be a valid column index");
+  SB_CHK_ERR(j >= A->n_cols, abort(),
+      "sb_mat_swap_row: j must be a valid column index");
 #endif
   double * data = A->data;
   size_t n_rows = A->n_rows;
@@ -1003,45 +1003,45 @@ gw_mat * gw_mat_swap_col(gw_mat * A, size_t i, size_t j) {
 /// # Examples
 /// ```
 /// #include <stdio.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///   
 ///   // Write the matrix to file
 ///   FILE * f = fopen("matrix.bin", "wb");
-///   gw_mat_fwrite(f, A);
+///   sb_mat_fwrite(f, A);
 ///   fclose(f);
 ///   
 ///   // Read the matrix from file
 ///   FILE * g = fopen("matrix.bin", "rb");
-///   gw_mat * B = gw_mat_fread(g);
+///   sb_mat * B = sb_mat_fread(g);
 ///   fclose(g);
 ///   
 ///   // Matrices have the same contents
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_print(B, "B: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
 ///   
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-int gw_mat_fwrite(FILE * stream, const gw_mat * A) {
+int sb_mat_fwrite(FILE * stream, const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_fwrite: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_fwrite: A cannot be NULL");
 #endif
   size_t n_write;
 
   n_write = fwrite(&(A->n_rows), sizeof(size_t), 1, stream);
-  GW_CHK_ERR(n_write != 1, return 1, "gw_mat_fwrite: fwrite failed");
+  SB_CHK_ERR(n_write != 1, return 1, "sb_mat_fwrite: fwrite failed");
 
   n_write = fwrite(&(A->n_cols), sizeof(size_t), 1, stream);
-  GW_CHK_ERR(n_write != 1, return 1, "gw_mat_fwrite: fwrite failed");
+  SB_CHK_ERR(n_write != 1, return 1, "sb_mat_fwrite: fwrite failed");
 
   size_t n_elem = A->n_elem; 
   n_write = fwrite(A->data, sizeof(double), n_elem, stream);
-  GW_CHK_ERR(n_write != n_elem, return 1, "gw_mat_fwrite: fwrite failed");
+  SB_CHK_ERR(n_write != n_elem, return 1, "sb_mat_fwrite: fwrite failed");
 
   return 0;
 }
@@ -1065,54 +1065,54 @@ int gw_mat_fwrite(FILE * stream, const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <stdio.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///   
 ///   // Write the matrix to file
 ///   FILE * f = fopen("matrix.txt", "w");
-///   gw_mat_fprintf(f, A, "%lg");
+///   sb_mat_fprintf(f, A, "%lg");
 ///   fclose(f);
 ///   
 ///   // Read the matrix from file
 ///   FILE * g = fopen("matrix.txt", "r");
-///   gw_mat * B = gw_mat_fscanf(g);
+///   sb_mat * B = sb_mat_fscanf(g);
 ///   fclose(g);
 ///   
 ///   // Matrices have the same contents
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_print(B, "B: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
 ///   
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-int gw_mat_fprintf(FILE * stream, const gw_mat * A, const char * format) {
+int sb_mat_fprintf(FILE * stream, const sb_mat * A, const char * format) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_fprintf: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_fprintf: A cannot be NULL");
 #endif
   int status;
 
   status = fprintf(stream, "%zu %zu", A->n_rows, A->n_cols);
-  GW_CHK_ERR(status < 0, return 1, "gw_mat_fprintf: fprintf failed");
+  SB_CHK_ERR(status < 0, return 1, "sb_mat_fprintf: fprintf failed");
 
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
     status = putc(' ', stream);
-    GW_CHK_ERR(status == EOF, return 1, "gw_mat_fprintf: putc failed");
+    SB_CHK_ERR(status == EOF, return 1, "sb_mat_fprintf: putc failed");
     status = fprintf(stream, format, data[a]);
-    GW_CHK_ERR(status < 0, return 1, "gw_mat_fprintf: fprintf failed");
+    SB_CHK_ERR(status < 0, return 1, "sb_mat_fprintf: fprintf failed");
   }
   status = putc('\n', stream);
-  GW_CHK_ERR(status == EOF, return 1, "gw_mat_fprintf: putc failed");
+  SB_CHK_ERR(status == EOF, return 1, "sb_mat_fprintf: putc failed");
 
   return 0;
 }
 
 /// Prints the matrix `A` to stdout. Output is slightly easier to read than for
-/// `gw_mat_fprintf()`. Mainly indended for debugging.
+/// `sb_mat_fprintf()`. Mainly indended for debugging.
 ///
 /// # Parameters
 /// - `A`: pointer to the matrix
@@ -1129,29 +1129,29 @@ int gw_mat_fprintf(FILE * stream, const gw_mat * A, const char * format) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4.};
-///   gw_mat * A = gw_mat_of_arr(a, 2, 4);
-///   gw_mat * B = gw_mat_of_arr(a, 4, 2);
+///   sb_mat * A = sb_mat_of_arr(a, 2, 4);
+///   sb_mat * B = sb_mat_of_arr(a, 4, 2);
 ///
 ///   // Prints the contents of `A` and `B` to stdout
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_print(B, "B: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-int gw_mat_print(const gw_mat * A, const char * str, const char * format) {
+int sb_mat_print(const sb_mat * A, const char * str, const char * format) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_print: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_print: A cannot be NULL");
 #endif
   int status;
 
   status = printf("%s\n", str);
-  GW_CHK_ERR(status < 0, return 1, "gw_mat_print: printf failed");
+  SB_CHK_ERR(status < 0, return 1, "sb_mat_print: printf failed");
 
   size_t n_elem = A->n_elem;
   double * data = A->data;
@@ -1168,7 +1168,7 @@ int gw_mat_print(const gw_mat * A, const char * str, const char * format) {
   unsigned char max_tail = 0;
   for (size_t a = 0; a < n_elem; ++a) {
     status = snprintf(buffer, 128, format, data[a]);
-    GW_CHK_ERR(status < 0, return 1, "gw_mat_print: snprintf failed");
+    SB_CHK_ERR(status < 0, return 1, "sb_mat_print: snprintf failed");
     dec = strchr(buffer, '.');
     if (dec) {
       dec_mark[a] = true;
@@ -1196,21 +1196,21 @@ int gw_mat_print(const gw_mat * A, const char * str, const char * format) {
       index = c * n_rows + r;
       for (unsigned char s = 0; s < max_head - len_head[index]; ++s) {
         status = putchar(' ');
-        GW_CHK_ERR(status == EOF, return 1, "gw_mat_print: putchar failed");
+        SB_CHK_ERR(status == EOF, return 1, "sb_mat_print: putchar failed");
       }
       status = printf(format, data[index]);
-      GW_CHK_ERR(status < 0, return 1, "gw_mat_print: printf failed");
+      SB_CHK_ERR(status < 0, return 1, "sb_mat_print: printf failed");
       if (any_mark && !dec_mark[index]) {
         status = putchar(' ');
-        GW_CHK_ERR(status == EOF, return 1, "gw_mat_print: putchar failed");
+        SB_CHK_ERR(status == EOF, return 1, "sb_mat_print: putchar failed");
       }
       for (unsigned char s = 0; s < max_tail - len_tail[index] + 1; ++s) {
         status = putchar(' ');
-        GW_CHK_ERR(status == EOF, return 1, "gw_mat_print: putchar failed");
+        SB_CHK_ERR(status == EOF, return 1, "sb_mat_print: putchar failed");
       }
     }
     status = putchar('\n');
-    GW_CHK_ERR(status == EOF, return 1, "gw_mat_print: putchar failed");
+    SB_CHK_ERR(status == EOF, return 1, "sb_mat_print: putchar failed");
   }
 
   return 0;
@@ -1218,60 +1218,60 @@ int gw_mat_print(const gw_mat * A, const char * str, const char * format) {
 
 /// Reads binary data from `stream` into the matrix returned by the function.
 /// The data must be written in the native binary format of the architecture, 
-/// preferably by `gw_mat_fwrite()`.
+/// preferably by `sb_mat_fwrite()`.
 ///
 /// # Parameters
 /// - `stream`: an open I/O stream
 ///
 /// # Returns
-/// A `gw_mat` pointer to the matrix read from `stream`, or `NULL` if the read
+/// A `sb_mat` pointer to the matrix read from `stream`, or `NULL` if the read
 /// or memory allocation fails
 /// 
 /// # Examples
 /// ```
 /// #include <stdio.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///   
 ///   // Write the matrix to file
 ///   FILE * f = fopen("matrix.bin", "wb");
-///   gw_mat_fwrite(f, A);
+///   sb_mat_fwrite(f, A);
 ///   fclose(f);
 ///   
 ///   // Read the matrix from file
 ///   FILE * g = fopen("matrix.bin", "rb");
-///   gw_mat * B = gw_mat_fread(g);
+///   sb_mat * B = sb_mat_fread(g);
 ///   fclose(g);
 ///   
 ///   // Matrices have the same contents
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_print(B, "B: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
 ///   
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-gw_mat * gw_mat_fread(FILE * stream) {
+sb_mat * sb_mat_fread(FILE * stream) {
   size_t n_read;
 
   size_t n_rows;
   n_read = fread(&n_rows, sizeof(size_t), 1, stream);
-  GW_CHK_ERR(n_read != 1, return NULL, "gw_mat_fread: fread failed");
+  SB_CHK_ERR(n_read != 1, return NULL, "sb_mat_fread: fread failed");
 
   size_t n_cols;
   n_read = fread(&n_cols, sizeof(size_t), 1, stream);
-  GW_CHK_ERR(n_read != 1, return NULL, "gw_mat_fread: fread failed");
+  SB_CHK_ERR(n_read != 1, return NULL, "sb_mat_fread: fread failed");
 
-  gw_mat * out = gw_mat_malloc(n_rows, n_cols);
-  GW_CHK_ERR(!out, return NULL, "gw_mat_fread: gw_mat_malloc failed");
+  sb_mat * out = sb_mat_malloc(n_rows, n_cols);
+  SB_CHK_ERR(!out, return NULL, "sb_mat_fread: sb_mat_malloc failed");
 
   size_t n_elem = out->n_elem;
   n_read = fread(out->data, sizeof(double), n_elem, stream);
-  GW_CHK_ERR(n_read != n_elem, gw_mat_free(out); return NULL,
-      "gw_mat_fread: fread failed");
+  SB_CHK_ERR(n_read != n_elem, sb_mat_free(out); return NULL,
+      "sb_mat_fread: fread failed");
 
   return out;
 }
@@ -1282,52 +1282,52 @@ gw_mat * gw_mat_fread(FILE * stream) {
 /// - `stream`: an open I/O stream
 ///
 /// # Returns
-/// A `gw_mat` pointer to the matrix read from `stream`, or `NULL` if the scan
+/// A `sb_mat` pointer to the matrix read from `stream`, or `NULL` if the scan
 /// or memory allocation fails
 /// 
 /// # Examples
 /// ```
 /// #include <stdio.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///   
 ///   // Write the matrix to file
 ///   FILE * f = fopen("matrix.txt", "w");
-///   gw_mat_fprintf(f, A, "%lg");
+///   sb_mat_fprintf(f, A, "%lg");
 ///   fclose(f);
 ///   
 ///   // Read the matrix from file
 ///   FILE * g = fopen("matrix.txt", "r");
-///   gw_mat * B = gw_mat_fscanf(g);
+///   sb_mat * B = sb_mat_fscanf(g);
 ///   fclose(g);
 ///   
 ///   // Matrices have the same contents
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_print(B, "B: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
 ///   
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-gw_mat * gw_mat_fscanf(FILE * stream) {
+sb_mat * sb_mat_fscanf(FILE * stream) {
   int n_scan;
 
   size_t n_rows;
   size_t n_cols;
   n_scan = fscanf(stream, "%zu %zu", &n_rows, &n_cols);
-  GW_CHK_ERR(n_scan != 2, return NULL, "gw_mat_fscanf: fscanf failed");
+  SB_CHK_ERR(n_scan != 2, return NULL, "sb_mat_fscanf: fscanf failed");
 
-  gw_mat * out = gw_mat_malloc(n_rows, n_cols);
-  GW_CHK_ERR(!out, return NULL, "gw_mat_fscanf: gw_mat_malloc failed");
+  sb_mat * out = sb_mat_malloc(n_rows, n_cols);
+  SB_CHK_ERR(!out, return NULL, "sb_mat_fscanf: sb_mat_malloc failed");
 
   double * data = out->data;
   for (size_t a = 0; a < out->n_elem; ++a) {
     n_scan = fscanf(stream, "%lg", data + a);
-    GW_CHK_ERR(n_scan != 1, gw_mat_free(out); return NULL,
-        "gw_mat_fscanf: fscanf failed");
+    SB_CHK_ERR(n_scan != 1, sb_mat_free(out); return NULL,
+        "sb_mat_fscanf: fscanf failed");
   }
 
   return out;
@@ -1349,31 +1349,31 @@ gw_mat * gw_mat_fscanf(FILE * stream) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., -4., 2., 8., 5., -7., -1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Take absolute value
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_abs(A);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_abs(A);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_abs(gw_mat * A) {
+sb_mat * sb_mat_abs(sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_abs: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_abs: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
     data[a] = fabs(data[a]);
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_abs: element not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_abs: element not finite");
 #endif
   return A;
 }
@@ -1395,33 +1395,33 @@ gw_mat * gw_mat_abs(gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <math.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///  double a[] = {log(1.), log(4.), log(2.),
 ///                log(8.), log(5.), log(7.),
 ///                log(1.), log(4.), log(2.)};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Take exponent base e
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_exp(A);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_exp(A);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_exp(gw_mat * A) {
+sb_mat * sb_mat_exp(sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_exp: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_exp: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
     data[a] = exp(data[a]);
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_exp: element not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_exp: element not finite");
 #endif
   return A;
 }
@@ -1443,33 +1443,33 @@ gw_mat * gw_mat_exp(gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <math.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {exp(1.), exp(4.), exp(2.),
 ///                 exp(8.), exp(5.), exp(7.),
 ///                 exp(1.), exp(4.), exp(2.)};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Take exponent base e
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_log(A);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_log(A);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_log(gw_mat * A) {
+sb_mat * sb_mat_log(sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_log: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_log: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
     data[a] = log(data[a]);
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_log: element not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_log: element not finite");
 #endif
   return A;
 }
@@ -1491,31 +1491,31 @@ gw_mat * gw_mat_log(gw_mat * A) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Exponentiate every element by -1.
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_pow(A, -1.);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_pow(A, -1.);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_pow(gw_mat * A, double x) {
+sb_mat * sb_mat_pow(sb_mat * A, double x) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_pow: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_pow: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
     data[a] = pow(data[a], x);
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_pow: element not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_pow: element not finite");
 #endif
   return A;
 }
@@ -1537,31 +1537,31 @@ gw_mat * gw_mat_pow(gw_mat * A, double x) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 16., 4., 64., 25., 49., 1., 16., 4.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Take the square root of every element
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_sqrt(A);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_sqrt(A);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_sqrt(gw_mat * A) {
+sb_mat * sb_mat_sqrt(sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_sqrt: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_sqrt: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
     data[a] = sqrt(data[a]);
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_sqrt: element not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_sqrt: element not finite");
 #endif
   return A;
 }
@@ -1583,31 +1583,31 @@ gw_mat * gw_mat_sqrt(gw_mat * A) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Add 2. to every element
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_sadd(A, 2.);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_sadd(A, 2.);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_sadd(gw_mat * A, double x) {
+sb_mat * sb_mat_sadd(sb_mat * A, double x) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_sadd: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_sadd: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
     data[a] += x;
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_sadd: element not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_sadd: element not finite");
 #endif
   return A;
 }
@@ -1629,28 +1629,28 @@ gw_mat * gw_mat_sadd(gw_mat * A, double x) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Multiply every element by -1.
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_smul(A, -1.);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_smul(A, -1.);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_smul(gw_mat * A, double x) {
+sb_mat * sb_mat_smul(sb_mat * A, double x) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_smul: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_smul: A cannot be NULL");
 #endif
   cblas_dscal(A->n_elem, x, A->data, 1);
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_smul: elements not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_smul: elements not finite");
 #endif
   return A;
 }
@@ -1676,29 +1676,29 @@ gw_mat * gw_mat_smul(gw_mat * A, double x) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_of_arr(a, 3, 'r');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_of_arr(a, 3, 'r');
 /// 
 ///   // Add v to every column of A
-///   gw_vec_print(v, "v: ", "%g");
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_vadd(A, v, 'c');
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_vec_print(v, "v: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_vadd(A, v, 'c');
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_mat * gw_mat_vadd(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
+sb_mat * sb_mat_vadd(sb_mat * restrict A, const sb_vec * restrict v, char dir) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_vadd: A cannot be NULL");
-  GW_CHK_ERR(!v, abort(), "gw_mat_vadd: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_vadd: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_vadd: v cannot be NULL");
 #endif
   size_t n_rows = A->n_rows;
   size_t n_cols = A->n_cols;
@@ -1707,11 +1707,11 @@ gw_mat * gw_mat_vadd(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
   switch (dir) {
     case 'c':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'r', abort(), "gw_mat_vadd: v must be a row vector");
+      SB_CHK_ERR(v->layout != 'r', abort(), "sb_mat_vadd: v must be a row vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_cols != v->n_elem, abort(),
-          "gw_mat_vadd: A and v must have same number of columns");
+      SB_CHK_ERR(A->n_cols != v->n_elem, abort(),
+          "sb_mat_vadd: A and v must have same number of columns");
 #endif
       for (size_t a = 0; a < n_rows; ++a) {
         cblas_daxpy(n_cols, 1., v_data, 1, A_data + a, n_rows);
@@ -1719,22 +1719,22 @@ gw_mat * gw_mat_vadd(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
       break;
     case 'r':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'c', abort(), "gw_mat_radd: v must be a column vector");
+      SB_CHK_ERR(v->layout != 'c', abort(), "sb_mat_radd: v must be a column vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_rows != v->n_elem, abort(),
-          "gw_mat_radd: A and v must have same number of rows");
+      SB_CHK_ERR(A->n_rows != v->n_elem, abort(),
+          "sb_mat_radd: A and v must have same number of rows");
 #endif
       for (size_t a = 0; a < n_cols; ++a) {
         cblas_daxpy(n_rows, 1., v_data, 1, A_data + a * n_rows, 1);
       }
       break;
     default:
-      GW_CHK_ERR(true, abort(), "gw_mat_vadd: dir must 'c' or 'r'");
+      SB_CHK_ERR(true, abort(), "sb_mat_vadd: dir must 'c' or 'r'");
       break;
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_vadd: elements not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_vadd: elements not finite");
 #endif
   return A;
 }
@@ -1760,29 +1760,29 @@ gw_mat * gw_mat_vadd(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_of_arr(a, 3, 'r');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_of_arr(a, 3, 'r');
 /// 
 ///   // Add v to every column of A
-///   gw_vec_print(v, "v: ", "%g");
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_vsub(A, v, 'c');
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_vec_print(v, "v: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_vsub(A, v, 'c');
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_mat * gw_mat_vsub(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
+sb_mat * sb_mat_vsub(sb_mat * restrict A, const sb_vec * restrict v, char dir) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_vsub: A cannot be NULL");
-  GW_CHK_ERR(!v, abort(), "gw_mat_vsub: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_vsub: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_vsub: v cannot be NULL");
 #endif
   size_t n_rows = A->n_rows;
   size_t n_cols = A->n_cols;
@@ -1791,11 +1791,11 @@ gw_mat * gw_mat_vsub(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
   switch (dir) {
     case 'c':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'r', abort(), "gw_mat_vsub: v must be a row vector");
+      SB_CHK_ERR(v->layout != 'r', abort(), "sb_mat_vsub: v must be a row vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_cols != v->n_elem, abort(),
-          "gw_mat_vsub: A and v must have same number of columns");
+      SB_CHK_ERR(A->n_cols != v->n_elem, abort(),
+          "sb_mat_vsub: A and v must have same number of columns");
 #endif
       for (size_t a = 0; a < n_rows; ++a) {
         cblas_daxpy(n_cols, -1., v_data, 1, A_data + a, n_rows);
@@ -1803,22 +1803,22 @@ gw_mat * gw_mat_vsub(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
       break;
     case 'r':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'c', abort(), "gw_mat_rsub: v must be a column vector");
+      SB_CHK_ERR(v->layout != 'c', abort(), "sb_mat_rsub: v must be a column vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_rows != v->n_elem, abort(),
-          "gw_mat_rsub: A and v must have same number of rows");
+      SB_CHK_ERR(A->n_rows != v->n_elem, abort(),
+          "sb_mat_rsub: A and v must have same number of rows");
 #endif
       for (size_t a = 0; a < n_cols; ++a) {
         cblas_daxpy(n_rows, -1., v_data, 1, A_data + a * n_rows, 1);
       }
       break;
     default:
-      GW_CHK_ERR(true, abort(), "gw_mat_vsub: dir must 'c' or 'r'");
+      SB_CHK_ERR(true, abort(), "sb_mat_vsub: dir must 'c' or 'r'");
       break;
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_vsub: elements not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_vsub: elements not finite");
 #endif
   return A;
 }
@@ -1844,29 +1844,29 @@ gw_mat * gw_mat_vsub(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_of_arr(a, 3, 'r');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_of_arr(a, 3, 'r');
 /// 
 ///   // Multiplies every column of A by corresponding element of v
-///   gw_vec_print(v, "v: ", "%g");
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_vmul(A, v, 'c');
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_vec_print(v, "v: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_vmul(A, v, 'c');
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_mat * gw_mat_vmul(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
+sb_mat * sb_mat_vmul(sb_mat * restrict A, const sb_vec * restrict v, char dir) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_vmul: A cannot be NULL");
-  GW_CHK_ERR(!v, abort(), "gw_mat_vmul: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_vmul: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_vmul: v cannot be NULL");
 #endif
   size_t n_rows = A->n_rows;
   size_t n_cols = A->n_cols;
@@ -1875,11 +1875,11 @@ gw_mat * gw_mat_vmul(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
   switch (dir) {
     case 'c':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'r', abort(), "gw_mat_vmul: v must be a row vector");
+      SB_CHK_ERR(v->layout != 'r', abort(), "sb_mat_vmul: v must be a row vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_cols != v->n_elem, abort(),
-          "gw_mat_vmul: A and v must have same number of columns");
+      SB_CHK_ERR(A->n_cols != v->n_elem, abort(),
+          "sb_mat_vmul: A and v must have same number of columns");
 #endif
       for (size_t a = 0; a < n_cols; ++a) {
         cblas_dscal(n_rows, v_data[a], A_data + a * n_rows, 1);
@@ -1887,22 +1887,22 @@ gw_mat * gw_mat_vmul(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
       break;
     case 'r':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'c', abort(), "gw_mat_vmul: v must be a column vector");
+      SB_CHK_ERR(v->layout != 'c', abort(), "sb_mat_vmul: v must be a column vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_rows != v->n_elem, abort(),
-          "gw_mat_vmul: A and v must have same number of rows");
+      SB_CHK_ERR(A->n_rows != v->n_elem, abort(),
+          "sb_mat_vmul: A and v must have same number of rows");
 #endif
       for (size_t a = 0; a < n_rows; ++a) {
         cblas_dscal(n_cols, v_data[a], A_data + a, n_rows);
       }
       break;
     default:
-      GW_CHK_ERR(true, abort(), "gw_mat_vmul: dir must 'c' or 'r'");
+      SB_CHK_ERR(true, abort(), "sb_mat_vmul: dir must 'c' or 'r'");
       break;
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_vmul: elements not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_vmul: elements not finite");
 #endif
   return A;
 }
@@ -1928,29 +1928,29 @@ gw_mat * gw_mat_vmul(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_of_arr(a, 3, 'r');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_of_arr(a, 3, 'r');
 /// 
 ///   // Multiplies every column of A by corresponding element of v
-///   gw_vec_print(v, "v: ", "%g");
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_vdiv(A, v, 'c');
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_vec_print(v, "v: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_vdiv(A, v, 'c');
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v);
 /// }
 /// ```
-gw_mat * gw_mat_vdiv(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
+sb_mat * sb_mat_vdiv(sb_mat * restrict A, const sb_vec * restrict v, char dir) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_vdiv: A cannot be NULL");
-  GW_CHK_ERR(!v, abort(), "gw_mat_vdiv: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_vdiv: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_vdiv: v cannot be NULL");
 #endif
   size_t n_rows = A->n_rows;
   size_t n_cols = A->n_cols;
@@ -1959,11 +1959,11 @@ gw_mat * gw_mat_vdiv(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
   switch (dir) {
     case 'c':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'r', abort(), "gw_mat_vdiv: v must be a row vector");
+      SB_CHK_ERR(v->layout != 'r', abort(), "sb_mat_vdiv: v must be a row vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_cols != v->n_elem, abort(),
-          "gw_mat_vdiv: A and v must have same number of columns");
+      SB_CHK_ERR(A->n_cols != v->n_elem, abort(),
+          "sb_mat_vdiv: A and v must have same number of columns");
 #endif
       for (size_t a = 0; a < n_cols; ++a) {
         cblas_dscal(n_rows, 1. / v_data[a], A_data + a * n_rows, 1);
@@ -1971,22 +1971,22 @@ gw_mat * gw_mat_vdiv(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
       break;
     case 'r':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'c', abort(), "gw_mat_rdiv: v must be a column vector");
+      SB_CHK_ERR(v->layout != 'c', abort(), "sb_mat_rdiv: v must be a column vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_rows != v->n_elem, abort(),
-          "gw_mat_rdiv: A and v must have same number of rows");
+      SB_CHK_ERR(A->n_rows != v->n_elem, abort(),
+          "sb_mat_rdiv: A and v must have same number of rows");
 #endif
       for (size_t a = 0; a < n_rows; ++a) {
         cblas_dscal(n_cols, 1. / v_data[a], A_data + a, n_rows);
       }
       break;
     default:
-      GW_CHK_ERR(true, abort(), "gw_mat_vdiv: dir must 'c' or 'r'");
+      SB_CHK_ERR(true, abort(), "sb_mat_vdiv: dir must 'c' or 'r'");
       break;
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_vdiv: elements not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_vdiv: elements not finite");
 #endif
   return A;
 }
@@ -2010,37 +2010,37 @@ gw_mat * gw_mat_vdiv(gw_mat * restrict A, const gw_vec * restrict v, char dir) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2., 8.};
-///   gw_mat * A = gw_mat_of_arr(a,     3, 3);
-///   gw_mat * B = gw_mat_of_arr(a + 1, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a,     3, 3);
+///   sb_mat * B = sb_mat_of_arr(a + 1, 3, 3);
 /// 
 ///   // Add B to A
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_print(B, "B: ", "%g");
-///   gw_mat_padd(A, B);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
+///   sb_mat_padd(A, B);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-gw_mat * gw_mat_padd(gw_mat * restrict A, const gw_mat * restrict B) {
+sb_mat * sb_mat_padd(sb_mat * restrict A, const sb_mat * restrict B) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_padd: A cannot be NULL");
-  GW_CHK_ERR(!B, abort(), "gw_mat_padd: B cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_padd: A cannot be NULL");
+  SB_CHK_ERR(!B, abort(), "sb_mat_padd: B cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_rows != B->n_rows, abort(),
-      "gw_mat_padd: A and B must have same number of rows");
-  GW_CHK_ERR(A->n_cols != B->n_cols, abort(),
-      "gw_mat_padd: A and B must have same number of columns");
+  SB_CHK_ERR(A->n_rows != B->n_rows, abort(),
+      "sb_mat_padd: A and B must have same number of rows");
+  SB_CHK_ERR(A->n_cols != B->n_cols, abort(),
+      "sb_mat_padd: A and B must have same number of columns");
 #endif
   cblas_daxpy(A->n_elem, 1., B->data, 1, A->data, 1);
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_padd: elements not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_padd: elements not finite");
 #endif
   return A;
 }
@@ -2064,37 +2064,37 @@ gw_mat * gw_mat_padd(gw_mat * restrict A, const gw_mat * restrict B) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2., 8.};
-///   gw_mat * A = gw_mat_of_arr(a,     3, 3);
-///   gw_mat * B = gw_mat_of_arr(a + 1, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a,     3, 3);
+///   sb_mat * B = sb_mat_of_arr(a + 1, 3, 3);
 /// 
 ///   // Subtract B from A
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_print(B, "B: ", "%g");
-///   gw_mat_psub(A, B);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
+///   sb_mat_psub(A, B);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-gw_mat * gw_mat_psub(gw_mat * restrict A, const gw_mat * restrict B) {
+sb_mat * sb_mat_psub(sb_mat * restrict A, const sb_mat * restrict B) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_psub: A cannot be NULL");
-  GW_CHK_ERR(!B, abort(), "gw_mat_psub: B cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_psub: A cannot be NULL");
+  SB_CHK_ERR(!B, abort(), "sb_mat_psub: B cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_rows != B->n_rows, abort(),
-      "gw_mat_psub: A and B must have same number of rows");
-  GW_CHK_ERR(A->n_cols != B->n_cols, abort(),
-      "gw_mat_psub: A and B must have same number of columns");
+  SB_CHK_ERR(A->n_rows != B->n_rows, abort(),
+      "sb_mat_psub: A and B must have same number of rows");
+  SB_CHK_ERR(A->n_cols != B->n_cols, abort(),
+      "sb_mat_psub: A and B must have same number of columns");
 #endif
   cblas_daxpy(A->n_elem, -1., B->data, 1, A->data, 1);
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_psub: elements not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_psub: elements not finite");
 #endif
   return A;
 }
@@ -2118,33 +2118,33 @@ gw_mat * gw_mat_psub(gw_mat * restrict A, const gw_mat * restrict B) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2., 8.};
-///   gw_mat * A = gw_mat_of_arr(a,     3, 3);
-///   gw_mat * B = gw_mat_of_arr(a + 1, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a,     3, 3);
+///   sb_mat * B = sb_mat_of_arr(a + 1, 3, 3);
 /// 
 ///   // Multiply elements of A by elements of B
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_print(B, "B: ", "%g");
-///   gw_mat_pmul(A, B);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
+///   sb_mat_pmul(A, B);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-gw_mat * gw_mat_pmul(gw_mat * restrict A, const gw_mat * restrict B) {
+sb_mat * sb_mat_pmul(sb_mat * restrict A, const sb_mat * restrict B) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_pmul: A cannot be NULL");
-  GW_CHK_ERR(!B, abort(), "gw_mat_pmul: B cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_pmul: A cannot be NULL");
+  SB_CHK_ERR(!B, abort(), "sb_mat_pmul: B cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_rows != B->n_rows, abort(),
-      "gw_mat_pmul: A and B must have same number of rows");
-  GW_CHK_ERR(A->n_cols != B->n_cols, abort(),
-      "gw_mat_pmul: A and B must have same number of columns");
+  SB_CHK_ERR(A->n_rows != B->n_rows, abort(),
+      "sb_mat_pmul: A and B must have same number of rows");
+  SB_CHK_ERR(A->n_cols != B->n_cols, abort(),
+      "sb_mat_pmul: A and B must have same number of columns");
 #endif
   double * A_data = A->data;
   double * B_data = B->data;
@@ -2152,7 +2152,7 @@ gw_mat * gw_mat_pmul(gw_mat * restrict A, const gw_mat * restrict B) {
     A_data[a] *= B_data[a];
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_pmul: element not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_pmul: element not finite");
 #endif
   return A;
 }
@@ -2176,33 +2176,33 @@ gw_mat * gw_mat_pmul(gw_mat * restrict A, const gw_mat * restrict B) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2., 8.};
-///   gw_mat * A = gw_mat_of_arr(a,     3, 3);
-///   gw_mat * B = gw_mat_of_arr(a + 1, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a,     3, 3);
+///   sb_mat * B = sb_mat_of_arr(a + 1, 3, 3);
 /// 
 ///   // Divide elements of A by elements of B
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_print(B, "B: ", "%g");
-///   gw_mat_pdiv(A, B);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
+///   sb_mat_pdiv(A, B);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-gw_mat * gw_mat_pdiv(gw_mat * restrict A, const gw_mat * restrict B) {
+sb_mat * sb_mat_pdiv(sb_mat * restrict A, const sb_mat * restrict B) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_pdiv: A cannot be NULL");
-  GW_CHK_ERR(!B, abort(), "gw_mat_pdiv: B cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_pdiv: A cannot be NULL");
+  SB_CHK_ERR(!B, abort(), "sb_mat_pdiv: B cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_rows != B->n_rows, abort(),
-      "gw_mat_pdiv: A and B must have same number of rows");
-  GW_CHK_ERR(A->n_cols != B->n_cols, abort(),
-      "gw_mat_pdiv: A and B must have same number of columns");
+  SB_CHK_ERR(A->n_rows != B->n_rows, abort(),
+      "sb_mat_pdiv: A and B must have same number of rows");
+  SB_CHK_ERR(A->n_cols != B->n_cols, abort(),
+      "sb_mat_pdiv: A and B must have same number of columns");
 #endif
   double * A_data = A->data;
   double * B_data = B->data;
@@ -2210,7 +2210,7 @@ gw_mat * gw_mat_pdiv(gw_mat * restrict A, const gw_mat * restrict B) {
     A_data[a] /= B_data[a];
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_pdiv: element not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_pdiv: element not finite");
 #endif
   return A;
 }
@@ -2238,67 +2238,67 @@ gw_mat * gw_mat_pdiv(gw_mat * restrict A, const gw_mat * restrict B) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #Include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #Include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_vec * v = gw_vec_malloc(3, 'c');
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * w = gw_vec_of_arr(a + 1, 3, 'c');
+///   sb_vec * v = sb_vec_malloc(3, 'c');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * w = sb_vec_of_arr(a + 1, 3, 'c');
 /// 
 ///   // Multiply A by w and store in v
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_vec_print(w, "w: ", "%g");
-///   gw_mat_mv_mul(v, A, w, 'n');
-///   gw_vec_print(v, "v: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_vec_print(w, "w: ", "%g");
+///   sb_mat_mv_mul(v, A, w, 'n');
+///   sb_vec_print(v, "v: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v, w);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v, w);
 /// }
 /// ```
-gw_vec * gw_mat_mv_mul(
-    gw_vec * restrict v,
-    const gw_mat * restrict A,
-    const gw_vec * restrict w,
+sb_vec * sb_mat_mv_mul(
+    sb_vec * restrict v,
+    const sb_mat * restrict A,
+    const sb_vec * restrict w,
     char op) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!v, abort(), "gw_mat_mv_mul: v cannot be NULL");
-  GW_CHK_ERR(!A, abort(), "gw_mat_mv_mul: A cannot be NULL");
-  GW_CHK_ERR(!w, abort(), "gw_mat_mv_mul: w cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_mv_mul: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_mv_mul: A cannot be NULL");
+  SB_CHK_ERR(!w, abort(), "sb_mat_mv_mul: w cannot be NULL");
 #endif
 #ifdef SAFE_LAYOUT
-  GW_CHK_ERR(v->layout != 'c', abort(), "gw_mat_mv_mul: v must be a column vector");
-  GW_CHK_ERR(w->layout != 'c', abort(), "gw_mat_mv_mul: w must be a column vector");
+  SB_CHK_ERR(v->layout != 'c', abort(), "sb_mat_mv_mul: v must be a column vector");
+  SB_CHK_ERR(w->layout != 'c', abort(), "sb_mat_mv_mul: w must be a column vector");
 #endif
   switch (op) {
     case 'n':
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(v->n_elem != A->n_rows, abort(),
-          "gw_mat_mv_mul: v and A must have same number of rows");
-      GW_CHK_ERR(A->n_cols != w->n_elem, abort(),
-          "gw_mat_mv_mul: A and w must have compatible inner dimensions");
+      SB_CHK_ERR(v->n_elem != A->n_rows, abort(),
+          "sb_mat_mv_mul: v and A must have same number of rows");
+      SB_CHK_ERR(A->n_cols != w->n_elem, abort(),
+          "sb_mat_mv_mul: A and w must have compatible inner dimensions");
 #endif
       cblas_dgemv(CblasColMajor, CblasNoTrans, A->n_rows, A->n_cols,
           1., A->data, A->n_rows, w->data, 1, 0., v->data, 1);
       break;
     case 't':
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(v->n_elem != A->n_cols, abort(),
-          "gw_mat_mv_mul: v and A^T must have same number of rows");
-      GW_CHK_ERR(A->n_rows != w->n_elem, abort(),
-          "gw_mat_mv_mul: A^T and w must have compatible inner dimensions");
+      SB_CHK_ERR(v->n_elem != A->n_cols, abort(),
+          "sb_mat_mv_mul: v and A^T must have same number of rows");
+      SB_CHK_ERR(A->n_rows != w->n_elem, abort(),
+          "sb_mat_mv_mul: A^T and w must have compatible inner dimensions");
 #endif
       cblas_dgemv(CblasColMajor, CblasTrans, A->n_rows, A->n_cols,
           1., A->data, A->n_rows, w->data, 1, 0., v->data, 1);
       break;
     default:
-      GW_CHK_ERR(true, abort(), "gw_mat_mv_mul: op must 'n' or 't'");
+      SB_CHK_ERR(true, abort(), "sb_mat_mv_mul: op must 'n' or 't'");
       break;
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_vec_is_finite(v), abort(), "gw_mat_mv_mul: elements not finite");
+  SB_CHK_ERR(!sb_vec_is_finite(v), abort(), "sb_mat_mv_mul: elements not finite");
 #endif
   return v;
 }
@@ -2326,67 +2326,67 @@ gw_vec * gw_mat_mv_mul(
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_vec * v = gw_vec_malloc(3, 'r');
-///   gw_vec * w = gw_vec_of_arr(a + 1, 3, 'r');
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_malloc(3, 'r');
+///   sb_vec * w = sb_vec_of_arr(a + 1, 3, 'r');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Multiply w by A and store in v
-///   gw_vec_print(w, "w: ", "%g");
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_vm_mul(v, w, A, 'n');
-///   gw_vec_print(v, "v: ", "%g");
+///   sb_vec_print(w, "w: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_vm_mul(v, w, A, 'n');
+///   sb_vec_print(v, "v: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v, w);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v, w);
 /// }
 /// ```
-gw_vec * gw_mat_vm_mul(
-    gw_vec * restrict v,
-    const gw_vec * restrict w,
-    const gw_mat * restrict A,
+sb_vec * sb_mat_vm_mul(
+    sb_vec * restrict v,
+    const sb_vec * restrict w,
+    const sb_mat * restrict A,
     char op) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!v, abort(), "gw_mat_vm_mul: v cannot be NULL");
-  GW_CHK_ERR(!w, abort(), "gw_mat_vm_mul: w cannot be NULL");
-  GW_CHK_ERR(!A, abort(), "gw_mat_vm_mul: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_vm_mul: v cannot be NULL");
+  SB_CHK_ERR(!w, abort(), "sb_mat_vm_mul: w cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_vm_mul: A cannot be NULL");
 #endif
 #ifdef SAFE_LAYOUT
-  GW_CHK_ERR(v->layout != 'r', abort(), "gw_mat_vm_mul: v must be a row vector");
-  GW_CHK_ERR(w->layout != 'r', abort(), "gw_mat_vm_mul: w must be a row vector");
+  SB_CHK_ERR(v->layout != 'r', abort(), "sb_mat_vm_mul: v must be a row vector");
+  SB_CHK_ERR(w->layout != 'r', abort(), "sb_mat_vm_mul: w must be a row vector");
 #endif
   switch (op) {
     case 'n':
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(v->n_elem != A->n_cols, abort(),
-          "gw_mat_vm_mul: v and A must have same number of columns");
-      GW_CHK_ERR(A->n_rows != w->n_elem, abort(),
-          "gw_mat_vm_mul: A and w must have compatible inner dimensions");
+      SB_CHK_ERR(v->n_elem != A->n_cols, abort(),
+          "sb_mat_vm_mul: v and A must have same number of columns");
+      SB_CHK_ERR(A->n_rows != w->n_elem, abort(),
+          "sb_mat_vm_mul: A and w must have compatible inner dimensions");
 #endif
       cblas_dgemv(CblasColMajor, CblasTrans, A->n_rows, A->n_cols,
           1., A->data, A->n_rows, w->data, 1, 0., v->data, 1);
       break;
     case 't':
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(v->n_elem != A->n_rows, abort(),
-          "gw_mat_vm_mul: v and A^T must have same number of columns");
-      GW_CHK_ERR(A->n_cols != w->n_elem, abort(),
-          "gw_mat_vm_mul: A^T and w must have compatible inner dimensions");
+      SB_CHK_ERR(v->n_elem != A->n_rows, abort(),
+          "sb_mat_vm_mul: v and A^T must have same number of columns");
+      SB_CHK_ERR(A->n_cols != w->n_elem, abort(),
+          "sb_mat_vm_mul: A^T and w must have compatible inner dimensions");
 #endif
       cblas_dgemv(CblasColMajor, CblasNoTrans, A->n_rows, A->n_cols,
           1., A->data, A->n_rows, w->data, 1, 0., v->data, 1);
       break;
     default:
-      GW_CHK_ERR(true, abort(), "gw_mat_vm_mul: op must 'n' or 't'");
+      SB_CHK_ERR(true, abort(), "sb_mat_vm_mul: op must 'n' or 't'");
       break;
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_vec_is_finite(v), abort(), "gw_mat_vm_mul: elements not finite");
+  SB_CHK_ERR(!sb_vec_is_finite(v), abort(), "sb_mat_vm_mul: elements not finite");
 #endif
   return v;
 }
@@ -2413,90 +2413,90 @@ gw_vec * gw_mat_vm_mul(
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2., 8.};
-///   gw_mat * A = gw_mat_malloc(3, 3);
-///   gw_mat * B = gw_mat_of_arr(a,     3, 3);
-///   gw_mat * C = gw_mat_of_arr(a + 1, 3, 3);
+///   sb_mat * A = sb_mat_malloc(3, 3);
+///   sb_mat * B = sb_mat_of_arr(a,     3, 3);
+///   sb_mat * C = sb_mat_of_arr(a + 1, 3, 3);
 /// 
 ///   // Multiply B by C and store in A
-///   gw_mat_print(B, "B: ", "%g");
-///   gw_mat_print(C, "C: ", "%g");
-///   gw_mat_mm_mul(A, B, C, "nn");
-///   gw_mat_print(A, "A: ", "%g");
+///   sb_mat_print(B, "B: ", "%g");
+///   sb_mat_print(C, "C: ", "%g");
+///   sb_mat_mm_mul(A, B, C, "nn");
+///   sb_mat_print(A, "A: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A, B, C);
+///   SB_MAT_FREE_ALL(A, B, C);
 /// }
 /// ```
-gw_mat * gw_mat_mm_mul(
-    gw_mat * restrict A,
-    const gw_mat * restrict B,
-    const gw_mat * restrict C,
+sb_mat * sb_mat_mm_mul(
+    sb_mat * restrict A,
+    const sb_mat * restrict B,
+    const sb_mat * restrict C,
     const char * restrict ops) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_mm_mul: A cannot be NULL");
-  GW_CHK_ERR(!B, abort(), "gw_mat_mm_mul: B cannot be NULL");
-  GW_CHK_ERR(!C, abort(), "gw_mat_mm_mul: C cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_mm_mul: A cannot be NULL");
+  SB_CHK_ERR(!B, abort(), "sb_mat_mm_mul: B cannot be NULL");
+  SB_CHK_ERR(!C, abort(), "sb_mat_mm_mul: C cannot be NULL");
 #endif
   switch ((*ops << 8) + *(ops + 1)) {
     case 0x6E6E: // "nn"
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_rows != B->n_rows, abort(),
-          "gw_mat_mm_mul: A and B must have same number of rows");
-      GW_CHK_ERR(A->n_cols != C->n_cols, abort(),
-          "gw_mat_mm_mul: A and C must have same number of columns");
-      GW_CHK_ERR(B->n_cols != C->n_rows, abort(),
-          "gw_mat_mm_mul: B and C must have compatible inner dimensions");
+      SB_CHK_ERR(A->n_rows != B->n_rows, abort(),
+          "sb_mat_mm_mul: A and B must have same number of rows");
+      SB_CHK_ERR(A->n_cols != C->n_cols, abort(),
+          "sb_mat_mm_mul: A and C must have same number of columns");
+      SB_CHK_ERR(B->n_cols != C->n_rows, abort(),
+          "sb_mat_mm_mul: B and C must have compatible inner dimensions");
 #endif
       cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, A->n_rows, A->n_cols, B->n_cols,
           1., B->data, B->n_rows, C->data, C->n_rows, 0., A->data, A->n_rows);
       break;
     case 0x6E74: // "nt"
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_rows != B->n_rows, abort(),
-          "gw_mat_mm_mul: A and B must have same number of rows");
-      GW_CHK_ERR(A->n_cols != C->n_rows, abort(),
-          "gw_mat_mm_mul: A and C^T must have same number of columns");
-      GW_CHK_ERR(B->n_cols != C->n_cols, abort(),
-          "gw_mat_mm_mul: B and C^T must have compatible inner dimensions");
+      SB_CHK_ERR(A->n_rows != B->n_rows, abort(),
+          "sb_mat_mm_mul: A and B must have same number of rows");
+      SB_CHK_ERR(A->n_cols != C->n_rows, abort(),
+          "sb_mat_mm_mul: A and C^T must have same number of columns");
+      SB_CHK_ERR(B->n_cols != C->n_cols, abort(),
+          "sb_mat_mm_mul: B and C^T must have compatible inner dimensions");
 #endif
       cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, A->n_rows, A->n_cols, B->n_cols,
           1., B->data, B->n_rows, C->data, C->n_rows, 0., A->data, A->n_rows);
       break;
     case 0x746E: // "tn"
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_rows != B->n_cols, abort(),
-          "gw_mat_mm_mul: A and B^T must have same number of rows");
-      GW_CHK_ERR(A->n_cols != C->n_cols, abort(),
-          "gw_mat_mm_mul: A and C must have same number of columns");
-      GW_CHK_ERR(B->n_rows != C->n_rows, abort(),
-          "gw_mat_mm_mul: B^T and C must have compatible inner dimensions");
+      SB_CHK_ERR(A->n_rows != B->n_cols, abort(),
+          "sb_mat_mm_mul: A and B^T must have same number of rows");
+      SB_CHK_ERR(A->n_cols != C->n_cols, abort(),
+          "sb_mat_mm_mul: A and C must have same number of columns");
+      SB_CHK_ERR(B->n_rows != C->n_rows, abort(),
+          "sb_mat_mm_mul: B^T and C must have compatible inner dimensions");
 #endif
       cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, A->n_rows, A->n_cols, B->n_rows,
           1., B->data, B->n_rows, C->data, C->n_rows, 0., A->data, A->n_rows);
       break;
     case 0x7474: // "tt"
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(A->n_rows != B->n_cols, abort(),
-          "gw_mat_mm_mul: A and B^T must have same number of rows");
-      GW_CHK_ERR(A->n_cols != C->n_rows, abort(),
-          "gw_mat_mm_mul: A and C^T must have same number of columns");
-      GW_CHK_ERR(B->n_rows != C->n_cols, abort(),
-          "gw_mat_mm_mul: B^T and C^T must have compatible inner dimensions");
+      SB_CHK_ERR(A->n_rows != B->n_cols, abort(),
+          "sb_mat_mm_mul: A and B^T must have same number of rows");
+      SB_CHK_ERR(A->n_cols != C->n_rows, abort(),
+          "sb_mat_mm_mul: A and C^T must have same number of columns");
+      SB_CHK_ERR(B->n_rows != C->n_cols, abort(),
+          "sb_mat_mm_mul: B^T and C^T must have compatible inner dimensions");
 #endif
       cblas_dgemm(CblasColMajor, CblasTrans, CblasTrans, A->n_rows, A->n_cols, B->n_rows,
           1., B->data, B->n_rows, C->data, C->n_rows, 0., A->data, A->n_rows);
       break;
     default:
-      GW_CHK_ERR(true, abort(),
-          "gw_mat_mm_mul: ops must be one of \"nn\", \"nt\", \"tn\", or \"tt\"");
+      SB_CHK_ERR(true, abort(),
+          "sb_mat_mm_mul: ops must be one of \"nn\", \"nt\", \"tn\", or \"tt\"");
       break;
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_mat_is_finite(A), abort(), "gw_mat_mm_mul: elements not finite");
+  SB_CHK_ERR(!sb_mat_is_finite(A), abort(), "sb_mat_mm_mul: elements not finite");
 #endif
   return A;
 }
@@ -2523,31 +2523,31 @@ gw_mat * gw_mat_mm_mul(
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_vec * v = gw_vec_malloc(3, 'c');
-///   gw_vec * w = gw_vec_malloc(3, 'r');
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_malloc(3, 'c');
+///   sb_vec * w = sb_vec_malloc(3, 'r');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // Sum over the rows of A
-///   gw_mat_print(A, "A: ", "%g");
-///   gw_mat_sum(v, A, 'r');
-///   gw_vec_print(v, "v: ", "%g");
-///   gw_mat_sum(w, A, 'c');
-///   gw_vec_print(w, "w: ", "%g");
+///   sb_mat_print(A, "A: ", "%g");
+///   sb_mat_sum(v, A, 'r');
+///   sb_vec_print(v, "v: ", "%g");
+///   sb_mat_sum(w, A, 'c');
+///   sb_vec_print(w, "w: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
-///   GW_VEC_FREE_ALL(v, w);
+///   SB_MAT_FREE_ALL(A);
+///   SB_VEC_FREE_ALL(v, w);
 /// }
 /// ```
-gw_vec * gw_mat_sum(gw_vec * restrict v, const gw_mat * restrict A, const char dir) {
+sb_vec * sb_mat_sum(sb_vec * restrict v, const sb_mat * restrict A, const char dir) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!v, abort(), "gw_mat_sum: v cannot be NULL");
-  GW_CHK_ERR(!A, abort(), "gw_mat_sum: A cannot be NULL");
+  SB_CHK_ERR(!v, abort(), "sb_mat_sum: v cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_sum: A cannot be NULL");
 #endif
   size_t n_rows = A->n_rows;
   size_t n_cols = A->n_cols;
@@ -2556,38 +2556,38 @@ gw_vec * gw_mat_sum(gw_vec * restrict v, const gw_mat * restrict A, const char d
   switch (dir) {
     case 'c':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'r', abort(),
-          "gw_mat_sum: v must be a row vector");
+      SB_CHK_ERR(v->layout != 'r', abort(),
+          "sb_mat_sum: v must be a row vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(v->n_elem != A->n_cols, abort(),
-          "gw_mat_sum: v and A must have same number of columns");
+      SB_CHK_ERR(v->n_elem != A->n_cols, abort(),
+          "sb_mat_sum: v and A must have same number of columns");
 #endif
-      gw_vec_set_zero(v);
+      sb_vec_set_zero(v);
       for (size_t a = 0; a < n_rows; ++a) {
         cblas_daxpy(n_cols, 1., A_data + a, n_rows, v_data, 1);
       }
       break;
     case 'r':
 #ifdef SAFE_LAYOUT
-      GW_CHK_ERR(v->layout != 'c', abort(),
-          "gw_mat_sum: v must be a column vector");
+      SB_CHK_ERR(v->layout != 'c', abort(),
+          "sb_mat_sum: v must be a column vector");
 #endif
 #ifdef SAFE_LENGTH
-      GW_CHK_ERR(v->n_elem != A->n_rows, abort(),
-          "gw_mat_sum: v and A must have same number of rows");
+      SB_CHK_ERR(v->n_elem != A->n_rows, abort(),
+          "sb_mat_sum: v and A must have same number of rows");
 #endif
-      gw_vec_set_zero(v);
+      sb_vec_set_zero(v);
       for (size_t a = 0; a < n_cols; ++a) {
         cblas_daxpy(n_rows, 1., A_data + a * n_rows, 1, v_data, 1);
       }
       break;
     default:
-      GW_CHK_ERR(true, abort(), "gw_mat_sum: dir must 'c' or 'r'");
+      SB_CHK_ERR(true, abort(), "sb_mat_sum: dir must 'c' or 'r'");
       break;
   }
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!gw_vec_is_finite(v), abort(), "gw_mat_sum: elements not finite");
+  SB_CHK_ERR(!sb_vec_is_finite(v), abort(), "sb_mat_sum: elements not finite");
 #endif
   return v;
 }
@@ -2615,37 +2615,37 @@ gw_vec * gw_mat_sum(gw_vec * restrict v, const gw_mat * restrict A, const char d
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_vec * v = gw_vec_of_arr(a, 9, 'c');
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_of_arr(a, 9, 'c');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // A is equal to B
-///   gw_mat * B = gw_vec_to_mat(&v, 3, 3);
-///   assert(gw_mat_is_equal(A, B));
+///   sb_mat * B = sb_vec_to_mat(&v, 3, 3);
+///   assert(sb_mat_is_equal(A, B));
 ///
-///   GW_MAT_FREE_ALL(A, B);
-///   //GW_VEC_FREE_ALL(v); // <-- double free
+///   SB_MAT_FREE_ALL(A, B);
+///   //SB_VEC_FREE_ALL(v); // <-- double free
 /// }
 /// ```
-gw_mat * gw_vec_to_mat(gw_vec ** v, size_t n_rows, size_t n_cols) {
+sb_mat * sb_vec_to_mat(sb_vec ** v, size_t n_rows, size_t n_cols) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!(*v), abort(), "gw_vec_to_mat: *v cannot be NULL");
+  SB_CHK_ERR(!(*v), abort(), "sb_vec_to_mat: *v cannot be NULL");
 #endif
 #ifdef SAFE_LAYOUT
-  GW_CHK_ERR((*v)->layout != 'c', abort(),
-      "gw_vec_to_mat: *v must be a column vector");
+  SB_CHK_ERR((*v)->layout != 'c', abort(),
+      "sb_vec_to_mat: *v must be a column vector");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR((*v)->n_elem != n_rows * n_cols, abort(),
-      "gw_vec_to_mat: number of elements must be preserved");
+  SB_CHK_ERR((*v)->n_elem != n_rows * n_cols, abort(),
+      "sb_vec_to_mat: number of elements must be preserved");
 #endif
-  gw_mat * out = malloc(sizeof(gw_mat));
-  GW_CHK_ERR(!out, return NULL, "gw_vec_to_mat: failed to allocate matrix");
+  sb_mat * out = malloc(sizeof(sb_mat));
+  SB_CHK_ERR(!out, return NULL, "sb_vec_to_mat: failed to allocate matrix");
 
   out->n_rows = n_rows;
   out->n_cols = n_cols;
@@ -2675,29 +2675,29 @@ gw_mat * gw_vec_to_mat(gw_vec ** v, size_t n_rows, size_t n_cols) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
-/// #include "gw_vector.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
+/// #include "sb_vector.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
-///   gw_vec * v = gw_vec_of_arr(a, 9, 'c');
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
+///   sb_vec * v = sb_vec_of_arr(a, 9, 'c');
 /// 
 ///   // v is equal to w
-///   gw_vec * w = gw_mat_to_gw_vec(&A);
-///   assert(gw_vec_is_equal(v, w));
+///   sb_vec * w = sb_mat_to_sb_vec(&A);
+///   assert(sb_vec_is_equal(v, w));
 ///
-///   GW_VEC_FREE_ALL(v, w);
-///   //GW_MAT_FREE_ALL(A); // <-- double free
+///   SB_VEC_FREE_ALL(v, w);
+///   //SB_MAT_FREE_ALL(A); // <-- double free
 /// }
 /// ```
-gw_vec * gw_mat_to_vec(gw_mat ** A) {
+sb_vec * sb_mat_to_vec(sb_mat ** A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!(*A), abort(), "gw_mat_to_vec: *A cannot be NULL");
+  SB_CHK_ERR(!(*A), abort(), "sb_mat_to_vec: *A cannot be NULL");
 #endif
-  gw_vec * out = malloc(sizeof(gw_vec));
-  GW_CHK_ERR(!out, return NULL, "gw_mat_to_vec: failed to allocate vector");
+  sb_vec * out = malloc(sizeof(sb_vec));
+  SB_CHK_ERR(!out, return NULL, "sb_mat_to_vec: failed to allocate vector");
 
   out->n_elem = (*A)->n_elem;
   out->data   = (*A)->data;
@@ -2728,28 +2728,28 @@ gw_vec * gw_mat_to_vec(gw_mat ** A) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4.};
-///   gw_mat * A = gw_mat_of_arr(a, 4, 2);
-///   gw_mat * B = gw_mat_of_arr(a, 2, 4);
+///   sb_mat * A = sb_mat_of_arr(a, 4, 2);
+///   sb_mat * B = sb_mat_of_arr(a, 2, 4);
 /// 
 ///   // A is reshaped to equal B
-///   gw_mat_reshape(A, 2, 4);
-///   assert(gw_mat_is_equal(A, B));
+///   sb_mat_reshape(A, 2, 4);
+///   assert(sb_mat_is_equal(A, B));
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-gw_mat * gw_mat_reshape(gw_mat * A, size_t n_rows, size_t n_cols) {
+sb_mat * sb_mat_reshape(sb_mat * A, size_t n_rows, size_t n_cols) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_reshape: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_reshape: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_elem != n_rows * n_cols, abort(),
-      "gw_mat_reshape: number of elements must be preserved");
+  SB_CHK_ERR(A->n_elem != n_rows * n_cols, abort(),
+      "sb_mat_reshape: number of elements must be preserved");
 #endif
   A->n_rows = n_rows;
   A->n_cols = n_cols;
@@ -2773,28 +2773,28 @@ gw_mat * gw_mat_reshape(gw_mat * A, size_t n_rows, size_t n_cols) {
 ///
 /// # Examples
 /// ```
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4.};
-///   gw_mat * A = gw_mat_of_arr(a, 4, 2);
+///   sb_mat * A = sb_mat_of_arr(a, 4, 2);
 /// 
 ///   // A is transposed
-///   gw_mat_print(A, "A before: ", "%g");
-///   gw_mat_trans(A);
-///   gw_mat_print(A, "A after: ", "%g");
+///   sb_mat_print(A, "A before: ", "%g");
+///   sb_mat_trans(A);
+///   sb_mat_print(A, "A after: ", "%g");
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-gw_mat * gw_mat_trans(gw_mat * A) {
+sb_mat * sb_mat_trans(sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_trans: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_trans: A cannot be NULL");
 #endif
   size_t n_elem = A->n_elem;
   double * T_data = malloc(n_elem * sizeof(double));
-  GW_CHK_ERR(!T_data, return A, "gw_mat_trans: failed to allocate memory");
+  SB_CHK_ERR(!T_data, return A, "sb_mat_trans: failed to allocate memory");
 
   size_t n_rows = A->n_rows;
   size_t n_cols = A->n_cols;
@@ -2831,39 +2831,39 @@ gw_mat * gw_mat_trans(gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2., 8.};
-///   gw_mat * A = gw_mat_of_arr(a,     3, 3);
-///   gw_mat * B = gw_mat_of_arr(a + 1, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a,     3, 3);
+///   sb_mat * B = sb_mat_of_arr(a + 1, 3, 3);
 /// 
-///   // A and B are equal after gw_mat_memcpy
-///   assert(!gw_mat_is_equal(A, B));
-///   gw_mat_memcpy(B, A);
-///   assert(gw_mat_is_equal(A, B));
+///   // A and B are equal after sb_mat_memcpy
+///   assert(!sb_mat_is_equal(A, B));
+///   sb_mat_memcpy(B, A);
+///   assert(sb_mat_is_equal(A, B));
 ///
-///   GW_MAT_FREE_ALL(A, B);
+///   SB_MAT_FREE_ALL(A, B);
 /// }
 /// ```
-int gw_mat_is_equal(const gw_mat * restrict A, const gw_mat * restrict B) {
+int sb_mat_is_equal(const sb_mat * restrict A, const sb_mat * restrict B) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_is_equal: A cannot be NULL");
-  GW_CHK_ERR(!B, abort(), "gw_mat_is_equal: B cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_is_equal: A cannot be NULL");
+  SB_CHK_ERR(!B, abort(), "sb_mat_is_equal: B cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_rows != B->n_rows, abort(),
-      "gw_mat_is_equal: A and B must have same number of rows");
-  GW_CHK_ERR(A->n_cols != B->n_cols, abort(),
-      "gw_mat_is_equal: A and B must have same number of columns");
+  SB_CHK_ERR(A->n_rows != B->n_rows, abort(),
+      "sb_mat_is_equal: A and B must have same number of rows");
+  SB_CHK_ERR(A->n_cols != B->n_cols, abort(),
+      "sb_mat_is_equal: A and B must have same number of columns");
 #endif
   double * A_data = A->data;
   double * B_data = B->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
 #ifdef SAFE_FINITE
-    GW_CHK_ERR(!isfinite(A_data[a]), abort(), "gw_mat_is_equal: A is not finite");
-    GW_CHK_ERR(!isfinite(B_data[a]), abort(), "gw_mat_is_equal: B is not finite");
+    SB_CHK_ERR(!isfinite(A_data[a]), abort(), "sb_mat_is_equal: A is not finite");
+    SB_CHK_ERR(!isfinite(B_data[a]), abort(), "sb_mat_is_equal: B is not finite");
 #endif
     if (A_data[a] != B_data[a]) {
       return 0;
@@ -2888,24 +2888,24 @@ int gw_mat_is_equal(const gw_mat * restrict A, const gw_mat * restrict B) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
-///   // A is zero after gw_mat_set_zero
-///   assert(!gw_mat_is_zero(A));
-///   gw_mat_set_zero(A);
-///   assert(gw_mat_is_zero(A));
+///   // A is zero after sb_mat_set_zero
+///   assert(!sb_mat_is_zero(A));
+///   sb_mat_set_zero(A);
+///   assert(sb_mat_is_zero(A));
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-int gw_mat_is_zero(const gw_mat * A) {
+int sb_mat_is_zero(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_is_zero: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_is_zero: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
@@ -2933,29 +2933,29 @@ int gw_mat_is_zero(const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., -4., 2., -8., 5., 7., 1., 4., -2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
-///   // A is positive after gw_mat_abs
-///   assert(!gw_mat_is_pos(A));
-///   gw_mat_abs(A);
-///   assert(gw_mat_is_pos(A));
+///   // A is positive after sb_mat_abs
+///   assert(!sb_mat_is_pos(A));
+///   sb_mat_abs(A);
+///   assert(sb_mat_is_pos(A));
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-int gw_mat_is_pos(const gw_mat * A) {
+int sb_mat_is_pos(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_is_pos: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_is_pos: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
 #ifdef SAFE_FINITE
-    GW_CHK_ERR(!isfinite(data[a]), abort(), "gw_mat_is_pos: A is not finite");
+    SB_CHK_ERR(!isfinite(data[a]), abort(), "sb_mat_is_pos: A is not finite");
 #endif
     if (data[a] <= 0.) {
       return 0;
@@ -2981,29 +2981,29 @@ int gw_mat_is_pos(const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., -4., 2., -8., 5., 7., 1., 4., -2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // A is negative after
-///   assert(!gw_mat_is_neg(A));
-///   gw_mat_smul(gw_mat_abs(A), -1.);
-///   assert(gw_mat_is_neg(A));
+///   assert(!sb_mat_is_neg(A));
+///   sb_mat_smul(sb_mat_abs(A), -1.);
+///   assert(sb_mat_is_neg(A));
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-int gw_mat_is_neg(const gw_mat * A) {
+int sb_mat_is_neg(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_is_neg: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_is_neg: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
 #ifdef SAFE_FINITE
-    GW_CHK_ERR(!isfinite(data[a]), abort(), "gw_mat_is_neg: A is not finite");
+    SB_CHK_ERR(!isfinite(data[a]), abort(), "sb_mat_is_neg: A is not finite");
 #endif
     if (data[a] >= 0.) {
       return 0;
@@ -3029,29 +3029,29 @@ int gw_mat_is_neg(const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {0., -4., 2., -8., 5., 7., 1., 4., -2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // A is nonnegative after
-///   assert(!gw_mat_is_nonneg(A));
-///   gw_mat_abs(A);
-///   assert( gw_mat_is_nonneg(A));
+///   assert(!sb_mat_is_nonneg(A));
+///   sb_mat_abs(A);
+///   assert( sb_mat_is_nonneg(A));
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-int gw_mat_is_nonneg(const gw_mat * A) {
+int sb_mat_is_nonneg(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_is_nonneg: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_is_nonneg: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
 #ifdef SAFE_FINITE
-    GW_CHK_ERR(!isfinite(data[a]), abort(), "gw_mat_is_nonneg: A is not finite");
+    SB_CHK_ERR(!isfinite(data[a]), abort(), "sb_mat_is_nonneg: A is not finite");
 #endif
     if (data[a] < 0.) {
       return 0;
@@ -3077,25 +3077,25 @@ int gw_mat_is_nonneg(const gw_mat * A) {
 /// ```
 /// #include <assert.h>
 /// #include <math.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., INFINITY, 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
-///   assert(!gw_mat_is_finite(A));
-///   gw_mat_set(A, 1, 0, NAN);
-///   assert(!gw_mat_is_finite(A));
-///   gw_mat_set(A, 1, 0, 4.);
-///   assert( gw_mat_is_finite(A));
+///   assert(!sb_mat_is_finite(A));
+///   sb_mat_set(A, 1, 0, NAN);
+///   assert(!sb_mat_is_finite(A));
+///   sb_mat_set(A, 1, 0, 4.);
+///   assert( sb_mat_is_finite(A));
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-int gw_mat_is_finite(const gw_mat * A) {
+int sb_mat_is_finite(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_is_finite: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_is_finite: A cannot be NULL");
 #endif
   double * data = A->data;
   for (size_t a = 0; a < A->n_elem; ++a) {
@@ -3124,31 +3124,31 @@ int gw_mat_is_finite(const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // maximum value of A is 8.
-///   assert(gw_mat_max(A) == 8.);
+///   assert(sb_mat_max(A) == 8.);
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-double gw_mat_max(const gw_mat * A) {
+double sb_mat_max(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_max: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_max: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_elem == 0, abort(), "gw_mat_max: n_elem must be nonzero");
+  SB_CHK_ERR(A->n_elem == 0, abort(), "sb_mat_max: n_elem must be nonzero");
 #endif
   double * data = A->data;
   double max_val = -INFINITY;
   for (size_t a = 0; a < A->n_elem; ++a) {
 #ifdef SAFE_FINITE
-    GW_CHK_ERR(!isfinite(data[a]), abort(), "gw_mat_max: A is not finite");
+    SB_CHK_ERR(!isfinite(data[a]), abort(), "sb_mat_max: A is not finite");
 #endif
     if (data[a] > max_val) {
       max_val = data[a];
@@ -3175,31 +3175,31 @@ double gw_mat_max(const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // value of min is 1
-///   assert(gw_mat_min(A) == 1.);
+///   assert(sb_mat_min(A) == 1.);
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-double gw_mat_min(const gw_mat * A) {
+double sb_mat_min(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_min: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_min: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_elem == 0, abort(), "gw_mat_min: n_elem must be nonzero");
+  SB_CHK_ERR(A->n_elem == 0, abort(), "sb_mat_min: n_elem must be nonzero");
 #endif
   double * data = A->data;
   double min_val = INFINITY;
   for (size_t a = 0; a < A->n_elem; ++a) {
 #ifdef SAFE_FINITE
-    GW_CHK_ERR(!isfinite(data[a]), abort(), "gw_mat_min: A is not finite");
+    SB_CHK_ERR(!isfinite(data[a]), abort(), "sb_mat_min: A is not finite");
 #endif
     if (data[a] < min_val) {
       min_val = data[a];
@@ -3226,30 +3226,30 @@ double gw_mat_min(const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., -4., 2., -8., 5., -7., 1., -4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // maximum absolute value of A is 8.
-///   assert(gw_mat_abs_max(A) == 8.);
+///   assert(sb_mat_abs_max(A) == 8.);
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-double gw_mat_abs_max(const gw_mat * A) {
+double sb_mat_abs_max(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_abs_max: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_abs_max: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_elem == 0, abort(), "gw_mat_abs_max: n_elem must be nonzero");
+  SB_CHK_ERR(A->n_elem == 0, abort(), "sb_mat_abs_max: n_elem must be nonzero");
 #endif
   double * data = A->data;
   size_t index = cblas_idamax(A->n_elem, data, 1);
 #ifdef SAFE_FINITE
-  GW_CHK_ERR(!isfinite(data[index]), abort(), "gw_mat_abs_max: A is not finite");
+  SB_CHK_ERR(!isfinite(data[index]), abort(), "sb_mat_abs_max: A is not finite");
 #endif
   return fabs(data[index]);
 }
@@ -3272,32 +3272,32 @@ double gw_mat_abs_max(const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // index of max is 3
-///   assert(gw_mat_max_index(A) == 3);
+///   assert(sb_mat_max_index(A) == 3);
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-size_t gw_mat_max_index(const gw_mat * A) {
+size_t sb_mat_max_index(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_max_index: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_max_index: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_elem == 0, abort(), "gw_mat_max_index: n_elem must be nonzero");
+  SB_CHK_ERR(A->n_elem == 0, abort(), "sb_mat_max_index: n_elem must be nonzero");
 #endif
   double * data = A->data;
   double max_val = -INFINITY;
   size_t max_ind = 0;
   for (size_t a = 0; a < A->n_elem; ++a) {
 #ifdef SAFE_FINITE
-    GW_CHK_ERR(!isfinite(data[a]), abort(), "gw_mat_max_index: A is not finite");
+    SB_CHK_ERR(!isfinite(data[a]), abort(), "sb_mat_max_index: A is not finite");
 #endif
     if (data[a] > max_val) {
       max_val = data[a];
@@ -3325,32 +3325,32 @@ size_t gw_mat_max_index(const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., 4., 2., 8., 5., 7., 1., 4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // index of min is 0
-///   assert(gw_mat_min_index(A) == 0);
+///   assert(sb_mat_min_index(A) == 0);
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-size_t gw_mat_min_index(const gw_mat * A) {
+size_t sb_mat_min_index(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_min_index: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_min_index: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_elem == 0, abort(), "gw_mat_min_index: n_elem must be nonzero");
+  SB_CHK_ERR(A->n_elem == 0, abort(), "sb_mat_min_index: n_elem must be nonzero");
 #endif
   double * data = A->data;
   double min_val = INFINITY;
   size_t min_ind = 0;
   for (size_t a = 0; a < A->n_elem; ++a) {
 #ifdef SAFE_FINITE
-    GW_CHK_ERR(!isfinite(data[a]), abort(), "gw_mat_min_index: A is not finite");
+    SB_CHK_ERR(!isfinite(data[a]), abort(), "sb_mat_min_index: A is not finite");
 #endif
     if (data[a] < min_val) {
       min_val = data[a];
@@ -3377,30 +3377,30 @@ size_t gw_mat_min_index(const gw_mat * A) {
 /// # Examples
 /// ```
 /// #include <assert.h>
-/// #include "gw_matrix.h"
-/// #include "gw_structs.h"
+/// #include "sb_matrix.h"
+/// #include "sb_structs.h"
 ///
 /// int main(void) {
 ///   double a[] = {1., -4., 2., -8., 5., -7., 1., -4., 2.};
-///   gw_mat * A = gw_mat_of_arr(a, 3, 3);
+///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
 ///   // index of the maximum absolute value of A is 3
-///   assert(gw_mat_abs_max_index(A) == 3);
+///   assert(sb_mat_abs_max_index(A) == 3);
 ///
-///   GW_MAT_FREE_ALL(A);
+///   SB_MAT_FREE_ALL(A);
 /// }
 /// ```
-size_t gw_mat_abs_max_index(const gw_mat * A) {
+size_t sb_mat_abs_max_index(const sb_mat * A) {
 #ifdef SAFE_MEMORY
-  GW_CHK_ERR(!A, abort(), "gw_mat_abs_max_index: A cannot be NULL");
+  SB_CHK_ERR(!A, abort(), "sb_mat_abs_max_index: A cannot be NULL");
 #endif
 #ifdef SAFE_LENGTH
-  GW_CHK_ERR(A->n_elem == 0, abort(),
-      "gw_mat_abs_max_index: n_elem must be nonzero");
+  SB_CHK_ERR(A->n_elem == 0, abort(),
+      "sb_mat_abs_max_index: n_elem must be nonzero");
 #endif
   return cblas_idamax(A->n_elem, A->data, 1);
 }
 
-extern inline double   gw_mat_get(const gw_mat * A, size_t i, size_t j);
-extern inline void     gw_mat_set(gw_mat * A, size_t i, size_t j, double x);
-extern inline double * gw_mat_ptr(gw_mat * A, size_t i, size_t j);
+extern inline double   sb_mat_get(const sb_mat * A, size_t i, size_t j);
+extern inline void     sb_mat_set(sb_mat * A, size_t i, size_t j, double x);
+extern inline double * sb_mat_ptr(sb_mat * A, size_t i, size_t j);
