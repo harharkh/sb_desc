@@ -113,7 +113,7 @@ static double halley(const uint32_t l, double lwr, double upr) {
 /// 
 /// // Use this example to calculate the lookup table for the roots of the
 /// // spherical Bessel functions of the first kind. Adjust the value of n_max,
-/// // execute, and modify the initial size information in `sb_roots.src`.
+/// // execute, and modify the initial size information in `sb_roots.tbl`.
 /// int main(void) {
 ///   uint32_t n_max = 141;
 /// 
