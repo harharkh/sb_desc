@@ -1,3 +1,6 @@
 docs
 docs.html
+libsb_descriptors.a
 sb_descriptors.zip
+src/sb_roots.src
+src/*.o

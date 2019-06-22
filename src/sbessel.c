@@ -125,7 +125,7 @@ double _sbessel(uint32_t l, double r) {
       pdt = copysign(1., pdt);
     }
 
-    iter += 1;
+    ++iter;
     SB_CHK_ERR(iter > MAXIT, break, "_sbessel: failed to converge");
 
     if (iter > l) {
