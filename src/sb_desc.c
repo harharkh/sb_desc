@@ -15,12 +15,11 @@
 #include "safety.h"
 
 /// Calculates spherical Bessel descriptors for the given atomic environment.
-/// The `restrict` keyword enables additional compiler optimizations. The 
-/// descriptors are returned as the `(n_max + 1) * (n_max + 2) / 2` elements of
-/// `desc`, interpreted as a position in feature space. `disp` should contain
-/// the relative Cartesian coordinates of successive surrouding atoms in the
-/// format `[x_1, y_1, z_1, ...]`. `weights` should contain the weights used in
-/// the construction of the neighbor density function (e.g., `[1., ...]`).
+/// `desc` should contain space for the descriptors, labelled by (n, l) and
+/// ordered lexicographically. `disp` should contain the relative Cartesian 
+/// coordinates of the surrouding atoms in the format `[x_1, y_1, z_1, ...]`.
+/// `weights` should contain the weights used in the construction of the
+/// neighbor density function (e.g., `[1., ...]`).
 ///
 /// # Parameters
 /// - `desc`: pointer to an array to hold the result
@@ -41,7 +40,11 @@
 ///
 /// # Warning
 /// You are reponsible for ensuring that enough memory is allocated for the
-/// relevant arrays, and should expect undefined behavior otherwise.
+/// relevant arrays, and should expect undefined behavior otherwise. The
+/// lengths should be:
+/// - `desc`: exactly `(n_max + 1) * (n_max + 2) / 2`
+/// - `disp`: at least `3 * n_atom`
+/// - `weights`: at least `n_atom`
 /// 
 /// # Examples
 /// ```
