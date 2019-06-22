@@ -5,7 +5,7 @@ SRC_DIR = src
 INCL_DIR_OPT = 
 
 # LIBS = -lm -lopenblas
-LIBS = -lm -lcblas -llapack
+LIBS = -lm -lcblas
 LIBS_DIR_OPT = 
 
 LIBRARY = libsb_descriptors.a

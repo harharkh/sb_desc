@@ -28,7 +28,6 @@ Apart from a c11-conformant compiler (e.g., `gcc` or `clang`), you must have
 the following dependencies installed:
 
  * A CBLAS library (e.g. [OpenBLAS][OpenBLAS] or [ATLAS][ATLAS])
- * [LAPACK][LAPACK] (included in default builds of [OpenBLAS][OpenBLAS])
 
 These should be available through any reasonable package manager, but could 
 be installed manually if you are working in an environment without one.
@@ -140,7 +139,6 @@ Jeremy Mason (jkmason@ucdavis.edu)
 [Kocer2019a]: https://aip.scitation.org/doi/10.1063/1.5086167
 [Lentz1990]: https://doi.org/10.1063/1.168382
 [ATLAS]: http://math-atlas.sourceforge.net/
-[LAPACK]: http://netlib.org/lapack/
 [OpenBLAS]: http://www.openblas.net/
 [LICENSE-APACHE]: https://www.apache.org/licenses/LICENSE-2.0
 [LICENSE-MIT]: https://opensource.org/licenses/MIT
