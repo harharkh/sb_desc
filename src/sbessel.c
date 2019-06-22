@@ -102,6 +102,7 @@ double _sbessel(uint32_t l, double r) {
   }
 
   while (nflag || dflag || (fabs((num - den) / den) > TOL1) || (iter <= l)) {
+    // Calculating b directly significantly reduces numerical error
     b = (2. * iter + 3.) / r;
 
     num = b - num;

@@ -31,7 +31,8 @@
 /// - `n_cols`: number of columns of the matrix
 ///
 /// # Returns
-/// A `sb_mat` pointer to the allocated matrix, or `NULL` if the allocation fails
+/// A `sb_mat` pointer to the allocated matrix, or `NULL` if the allocation
+/// fails
 /// 
 /// # Examples
 /// ```
