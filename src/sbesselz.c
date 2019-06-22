@@ -133,7 +133,7 @@ static double halley(uint32_t l, double lwr, double upr) {
 ///   printf("Max error: %g\n", max_err);
 /// 
 ///   // Write the roots to file
-///   FILE * f = fopen("src/sb_roots.src", "w");
+///   FILE * f = fopen("src/sb_roots.tbl", "w");
 ///   sb_mat_fprintf(f, u_nl, "%.16g,");
 ///   fclose(f);
 /// 
