@@ -57,7 +57,7 @@
 ///   printf("Result:   %.8f\n", _sbessel(l, r));
 /// }
 /// ```
-double _sbessel(uint32_t l, double r) {
+double _sbessel(const uint32_t l, const double r) {
 #ifdef SAFE_FINITE
   SB_CHK_ERR(r < 0., abort(), "_sbessel: r cannot be negative");
 #endif

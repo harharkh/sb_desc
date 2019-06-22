@@ -37,7 +37,7 @@
 ///
 /// # Returns
 /// Position of a root within the interval.
-static double halley(uint32_t l, double lwr, double upr) {
+static double halley(const uint32_t l, double lwr, double upr) {
   const uint32_t l1 = l + 1;
   const double   d1 = l * l1;
   const double   d2 = 4. * l + 2.;
@@ -140,7 +140,7 @@ static double halley(uint32_t l, double lwr, double upr) {
 ///   SB_MAT_FREE_ALL(u_nl);
 /// }
 /// ```
-sb_mat * _sbesselz(sb_mat * u_nl, uint32_t n_max) {
+sb_mat * _sbesselz(sb_mat * u_nl, const uint32_t n_max) {
 #ifdef SAFE_MEMORY
   SB_CHK_ERR(!u_nl, abort(), "_sbesselz: u_nl cannot be NULL");
 #endif

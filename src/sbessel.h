@@ -13,4 +13,4 @@
 
 #include <stdint.h> // uint32_t
 
-double _sbessel(uint32_t l, double r);
+double _sbessel(const uint32_t l, const double r);

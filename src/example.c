@@ -43,7 +43,7 @@ int main(void) {
   sb_vec * desc = sb_vec_malloc(n_max * (n_max + 1) / 2, 'c');
 
   SB_TIC;
-  sb_descriptors(desc, rc, n_max, disp, weight, n_atom);
+  sb_descriptors(desc, rc, n_max, disp, weights, n_atom);
   SB_TOC;
 
   sb_vec_print(desc, "Descriptors: ", "%.4f");

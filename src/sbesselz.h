@@ -14,4 +14,4 @@
 #include <stdint.h>     // uint32_t
 #include "sb_structs.h" // sb_mat
 
-sb_mat * _sbesselz(sb_mat * u_nl, uint32_t n_max);
+sb_mat * _sbesselz(sb_mat * u_nl, const uint32_t n_max);
