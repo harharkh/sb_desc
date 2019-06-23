@@ -1770,7 +1770,7 @@ sb_mat * sb_mat_vadd(sb_mat * restrict A, const sb_vec * restrict v, char dir) {
 ///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///   sb_vec * v = sb_vec_of_arr(a, 3, 'r');
 /// 
-///   // Add v to every column of A
+///   // Subtracts v from every column of A
 ///   sb_vec_print(v, "v: ", "%g");
 ///   sb_mat_print(A, "A before: ", "%g");
 ///   sb_mat_vsub(A, v, 'c');
@@ -1938,7 +1938,7 @@ sb_mat * sb_mat_vmul(sb_mat * restrict A, const sb_vec * restrict v, char dir) {
 ///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 ///   sb_vec * v = sb_vec_of_arr(a, 3, 'r');
 /// 
-///   // Multiplies every column of A by corresponding element of v
+///   // Divides every column of A by corresponding element of v
 ///   sb_vec_print(v, "v: ", "%g");
 ///   sb_mat_print(A, "A before: ", "%g");
 ///   sb_mat_vdiv(A, v, 'c');
@@ -2394,7 +2394,7 @@ sb_vec * sb_mat_vm_mul(
 
 /// Matrix multiplication of `op(B)` and `op(C)`, where `op` can be nothing or
 /// a transpose. The result is stored in `A`, and any previous values in `A`
-/// are overwritten. `A`, `B` and `C` must not overlap in memory.
+/// are overwritten. `A` must not overlap `B` or `C` in memory.
 ///
 /// # Parameters
 /// - `A`: pointer to the resulting matrix
@@ -2534,10 +2534,11 @@ sb_mat * sb_mat_mm_mul(
 ///   sb_vec * w = sb_vec_malloc(3, 'r');
 ///   sb_mat * A = sb_mat_of_arr(a, 3, 3);
 /// 
-///   // Sum over the rows of A
 ///   sb_mat_print(A, "A: ", "%g");
+///   // Sum over the rows of A
 ///   sb_mat_sum(v, A, 'r');
 ///   sb_vec_print(v, "v: ", "%g");
+///   // Sum over the cols of A
 ///   sb_mat_sum(w, A, 'c');
 ///   sb_vec_print(w, "w: ", "%g");
 ///

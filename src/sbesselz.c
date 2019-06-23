@@ -37,7 +37,7 @@
 ///
 /// # Returns
 /// Position of a root within the interval.
-static double halley(const uint32_t l, double lwr, double upr) {
+static double halley(uint32_t l, double lwr, double upr) {
   const uint32_t l1 = l + 1;
   const double   d1 = l * l1;
   const double   d2 = 4. * l + 2.;
@@ -84,8 +84,7 @@ static double halley(const uint32_t l, double lwr, double upr) {
 /// of the spherical Bessel function of the preceeding order used to bracket
 /// the search interval. The function returns the first `n_max - l + 2`
 /// positive roots of `j_l(r)` in the `l`th column of `u_nl` for increasing
-/// values of `n`. Numerical error appears to be within a factor of ten of the
-/// machine precision.
+/// values of `n`.
 ///
 /// # Parameters
 /// - `u_nl`: matrix to hold the result
@@ -111,9 +110,6 @@ static double halley(const uint32_t l, double lwr, double upr) {
 /// #include "sbessel.h"    // _sbessel
 /// #include "sbesselz.h"   // _sbesselz
 /// 
-/// // Use this example to calculate the lookup table for the roots of the
-/// // spherical Bessel functions of the first kind. Adjust the value of n_max,
-/// // execute, and modify the initial size information in `sb_roots.tbl`.
 /// int main(void) {
 ///   uint32_t n_max = 141;
 /// 
@@ -140,7 +136,7 @@ static double halley(const uint32_t l, double lwr, double upr) {
 ///   SB_MAT_FREE_ALL(u_nl);
 /// }
 /// ```
-sb_mat * _sbesselz(sb_mat * u_nl, const uint32_t n_max) {
+sb_mat * _sbesselz(sb_mat * u_nl, uint32_t n_max) {
 #ifdef SAFE_MEMORY
   SB_CHK_ERR(!u_nl, abort(), "_sbesselz: u_nl cannot be NULL");
 #endif

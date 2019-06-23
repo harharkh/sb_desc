@@ -11,8 +11,68 @@
 #include <stdint.h>     // uint32_t
 #include <stdlib.h>     // abort
 #include "sb_desc.h"
+#include "sb_matrix.h"  // sb_mat_malloc
+#include "sb_structs.h" // sb_vec
 #include "sb_utility.h" // SB_CHK_ERR
+#include "sb_vector.h"  // sb_vec_calloc
 #include "safety.h"
+
+
+/*
+function gnl = find_gnl(rc, n_max, r)
+    % zeros of spherical Bessel functions of first kind
+    % (n + 1, l + 1)
+    persistent u_all;
+    if isempty(u_all)
+        u_all = spherical_bessel_z(n_max);
+    end
+    
+    % coefficients in the definition of f_{nl}
+    % (n + 1, l + 1)
+    persistent coeff_a;
+    persistent coeff_b;
+    if isempty(coeff_a) || isempty(coeff_b)
+        coeff_a = zeros(n_max + 1, n_max + 1);
+        coeff_b = zeros(n_max + 1, n_max + 1);
+        for l = 1:(n_max + 1) % offset by one for indexing
+            u = u_all(:, l);
+            for n = 1:(n_max - l + 2) % offset by one for indexing
+                c = sqrt(2. / (rc^3 * (u(n)^2 + u(n + 1)^2)));
+                coeff_a(n, l) = u(n + 1) / spherical_bessel(l, u(n)) * c;
+                coeff_b(n, l) = -u(n) / spherical_bessel(l, u(n + 1)) * c;
+            end
+        end
+    end
+    
+    e = zeros(n_max + 1, 1); % e_{0l} = 0.
+    d = ones(n_max + 1, 1); % d_{0l} = 1.
+    
+    nu = length(r);
+    gnl = zeros(nu, n_max + 1, n_max + 1);
+    
+    arg = r / rc;
+    for l = 1:(n_max + 1) % offset by one for indexing
+        u = u_all(:, l);
+        
+        for n = 2:(n_max - l + 2) % offset by one for indexing
+            e(n) = (u(n - 1)^2 * u(n + 1)^2) / ((u(n - 1)^2 + u(n)^2) * (u(n)^2 + u(n + 1)^2));
+            d(n) = 1. - e(n) / d(n - 1);
+        end
+
+        % fnl initially
+        for n = 1:(n_max - l + 2) % offset by one for indexing
+            for a = 1:nu
+                gnl(a, n, l) = coeff_a(n, l) * spherical_bessel(l - 1, arg(a) * u(n)) + coeff_b(n, l) * spherical_bessel(l - 1, arg(a) * u(n + 1));
+            end
+        end
+        
+        % converted to gnl
+        for n = 2:(n_max - l + 2) % offset by one for indexing
+            gnl(:, n, l) = (gnl(:, n, l) + sqrt(e(n) / d(n - 1)) * gnl(:, n - 1, l)) / sqrt(d(n));
+        end
+    end
+end
+*/
 
 /// Calculates spherical Bessel descriptors for the given atomic environment.
 /// `desc` should contain space for the descriptors, labelled by (n, l) and
@@ -42,7 +102,7 @@
 /// You are reponsible for ensuring that enough memory is allocated for the
 /// relevant arrays, and should expect undefined behavior otherwise. The
 /// lengths should be:
-/// - `desc`: exactly `(n_max + 1) * (n_max + 2) / 2`
+/// - `desc`: `(n_max + 1) * (n_max + 2) / 2`
 /// - `disp`: at least `3 * n_atom`
 /// - `weights`: at least `n_atom`
 /// 
@@ -96,20 +156,110 @@
 /// }
 /// ```
 double * sb_descriptors(
-    double * restrict desc,
+    double * restrict desc_arr,
     const uint32_t n_max, 
-    const double * restrict disp,
-    const double * restrict weights,
+    double * restrict disp_arr,
+    const double * restrict weights_arr,
     const uint32_t n_atom,
     const double rc) {
 #ifdef SAFE_MEMORY
-  SB_CHK_ERR(!desc, abort(), "sb_descriptors: desc cannot be NULL");
-  SB_CHK_ERR(!disp, abort(), "sb_descriptors: disp cannot be NULL");
-  SB_CHK_ERR(!weights, abort(), "sb_descriptors: weights cannot be NULL");
+  SB_CHK_ERR(!desc_arr, abort(), "sb_descriptors: desc cannot be NULL");
+  SB_CHK_ERR(!disp_arr, abort(), "sb_descriptors: disp cannot be NULL");
+  SB_CHK_ERR(!weights_arr, abort(), "sb_descriptors: weights cannot be NULL");
 #endif
 #ifdef SAFE_FINITE
   SB_CHK_ERR(rc < 0., abort(), "sb_descriptors: rc cannot be negative");
 #endif
+  // Convert raw pointers to sb_vec and sb_mat
+  sb_vec * desc = malloc(sizeof(sb_vec));
+  SB_CHK_ERR(!desc, abort(), "sb_descriptors: failed to allocate desc");
 
-  return desc;
+  desc->n_elem = (n_max + 1) * (n_max + 2) / 2;
+  desc->data   = desc_arr;
+  desc->layout = 'c';
+
+  sb_mat * disp = malloc(sizeof(sb_mat));
+  SB_CHK_ERR(!disp, abort(), "sb_descriptors: failed to allocate disp");
+
+  disp->n_rows = 3;
+  disp->n_cols = n_atom;
+  disp->n_elem = 3 * n_atom;
+  disp->data   = disp_arr;
+
+  double * data1, * data2;
+  size_t a, b, c;
+
+  // Calculate radial coordinates
+  sb_vec * radius = sb_vec_calloc(n_atom, 'r');
+  data1 = disp->data;
+  data2 = radius->data;
+  for (a = 0; a < n_atom; ++a) {
+    for (b = 0; b < 3; ++b) {
+      *data2 += SB_SQR(data1[b]);
+    }
+    data1 += 3;
+    data2 += 1;
+  }
+  sb_vec_sqrt(radius);
+
+  // Normalize displacement vectors
+  sb_mat_vdiv(disp, radius, 'c');
+
+  // Calculate angle cosines
+  sb_mat * gamma = sb_mat_malloc(n_atom, n_atom);
+  sb_mat_mm_mul(gamma, disp, disp, "tn");
+
+  // Legendre polynomials
+  sb_mat * * lp = malloc((n_max + 1) * sizeof(sb_mat *));
+  SB_CHK_ERR(!lp, abort(), "sb_descriptors: failed to allocate lp");
+  for (a = 0; a <= n_max; ++a) {
+    lp[a] = sb_mat_calloc(n_atom, n_atom);
+  }
+
+  sb_mat_set_all(lp[0], 1.);
+  sb_mat_memcpy(lp[1], gamma);
+  for (a = 2; a <= n_max; ++a) { // l = a
+    sb_mat_memcpy(lp[a], gamma);
+    sb_mat_pmul(lp[a], lp[a - 1]);
+    sb_mat_smul(lp[a], (2. * a - 1.) / (a - 1.));
+    sb_mat_psub(lp[a], lp[a - 2]);
+    sb_mat_smul(lp[a], (a - 1.) / a);
+  }
+
+  // Include multiplier here to simplify calculation below
+  for (a = 0; a <= n_max; ++a) {
+    sb_mat_smul(lp[a], (2. * a + 1.) / 12.566370614359172);
+  }
+    
+  // Radial basis functions
+  // % (j, n + 1, l + 1)
+  // gnl = find_gnl(rc, n_max, r);
+
+  /*
+  c = 0;
+  for (a = 0; a <= n_max; ++a) {
+    for (b = 0; b <= a; ++b) {
+      desc[c++] = ;
+    }
+  }
+
+    
+    % power-spectrum calculation
+    % (np + 1, l + 1)
+    % np = n + l is the index for the power spectrum
+    % n = np - l is the index for the calculation of the basis functions
+    pnl = zeros(n_max + 1, n_max + 1);
+    for np = 1:(n_max + 1) % offset by one for indexing
+        for l = 1:np % offset by one for indexing
+            pnl(np, l) = gnl(:, np - l + 1, l)' * lp(:, :, l) * gnl(:, np - l + 1, l);
+        end
+    end
+end
+  */
+
+  SB_FREE_ALL(desc, disp);
+  SB_VEC_FREE_ALL(radius);
+  SB_MAT_FREE_ALL(gamma);
+
+  return desc_arr;
 }

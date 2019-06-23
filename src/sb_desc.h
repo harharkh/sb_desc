@@ -15,7 +15,7 @@
 double * sb_descriptors(
     double * restrict desc,
     const uint32_t n_max, 
-    const double * restrict disp,
+    double * restrict disp,
     const double * restrict weights,
     const uint32_t n_atom,
     const double rc);
