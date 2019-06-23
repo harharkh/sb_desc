@@ -201,6 +201,10 @@ double * sb_descriptors(
 #ifdef SAFE_FINITE
   SB_CHK_ERR(rc < 0., abort(), "sb_descriptors: rc cannot be negative");
 #endif
+  // Check that n_max is within limit defined by tables
+  SB_CHK_ERR(n_max > _u_n_max || n_max > _c1_n_max || n_max > _c2_n_max,
+      abort(), "sb_descriptors: n_max above limit defined by lookup tables");
+
   // Convert raw pointers to sb_vec and sb_mat
   sb_mat * disp = malloc(sizeof(sb_mat));
   SB_CHK_ERR(!disp, abort(), "sb_descriptors: failed to allocate disp");
