@@ -21,9 +21,10 @@
 #include "safety.h"
 
 // Lookup tables used in get_radial_basis. Built using function in `tables.c`.
-static const double _u_data[20306] = {
+static const double _u_data[10152] = {
   #include "unl.tbl"
 };
+static const size_t _u_n_max = 140;
 static const size_t _u_rows = 143;
 static const size_t _u_cols = 142;
 

@@ -11,7 +11,7 @@
 #pragma once
 
 #include <stdint.h>     // uint32_t
-#include "sb_structs.h" // sb_mat
+#include "sb_structs.h" // sb_vec
 
-void _build_unl_tbl(sb_mat * unl, const uint32_t n_max);
+void _build_unl_tbl(sb_vec * unl, const uint32_t n_max);
 void _build_fnl_tbl(sb_vec * c1, sb_vec * c2, const uint32_t n_max);
