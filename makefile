@@ -16,7 +16,7 @@ EXAMPLE = sb_example
 #------------------------
 # Source code for project
 #------------------------
-SRCS = sb_desc.c matrix.c sbessel.c sbesselz.c utility.c vector.c 
+SRCS = sb_desc.c matrix.c sbessel.c tables.c utility.c vector.c 
 EXAMPLE_SRCS = example.c
 
 #------------------------

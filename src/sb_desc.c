@@ -17,15 +17,50 @@
 #include "sb_vector.h"  // sb_vec_calloc
 #include "safety.h"
 
+// Temporary variables used to package the lookup tables. You *really* should
+// not modify any of these variables.
+static double _unl_data[20306] = {
+  #include "unl.tbl"
+};
+static sb_mat _unl = {143, 142, 20306, _unl_data};
+static const sb_mat * unl = &_unl;
+
+static double _fnl_c1_data[20164] = {
+  #include "fnl_c1.tbl"
+};
+static sb_mat _fnl_c1 = {142, 142, 20164, _fnl_c1_data};
+static const sb_mat * fnl_c1 = &_fnl_c1;
+
+static double _fnl_c2_data[20164] = {
+  #include "fnl_c2.tbl"
+};
+static sb_mat _fnl_c2 = {142, 142, 20164, _fnl_c2_data};
+static const sb_mat * fnl_c2 = &_fnl_c2;
+
+/// Halley's method to find the roots of the spherical Bessel functions of the
+/// first kind. The derivatives are calculated using recursion relations and 
+/// incorporated directly into the equation for the update.
+///
+/// # Parameters
+/// - `l`: order of the spherical Bessel function
+/// - `lwr`: lower bound on the search interval
+/// - `upr`: upper bound on the search interval
+///
+/// # Returns
+/// Position of a root within the interval.
+static sb_mat * get_radial_basis(
+    sb_mat * gnl,
+    sb_vec * radius,
+    uint32_t n_max, 
+    uint32_t n_atom,
+    double rc) {
+
+  printf("unl(2, 2): %g", sb_mat_get(unl, 2, 2));
+  
+  return gnl;
+}
 
 /*
-function gnl = find_gnl(rc, n_max, r)
-    % zeros of spherical Bessel functions of first kind
-    % (n + 1, l + 1)
-    persistent u_all;
-    if isempty(u_all)
-        u_all = spherical_bessel_z(n_max);
-    end
     
     % coefficients in the definition of f_{nl}
     % (n + 1, l + 1)
@@ -232,8 +267,12 @@ double * sb_descriptors(
   }
     
   // Radial basis functions
-  // % (j, n + 1, l + 1)
-  // gnl = find_gnl(rc, n_max, r);
+  sb_mat * * gnl = malloc((n_max + 1) * sizeof(sb_mat *));
+  SB_CHK_ERR(!gnl, abort(), "sb_descriptors: failed to allocate gnl");
+  for (a = 0; a <= n_max; ++a) {
+    gnl[a] = sb_mat_malloc(n_atom, n_atom);
+    get_radial_basis(gnl[a], radius, n_max, n_atom, rc);
+  }
 
   /*
   c = 0;
@@ -257,7 +296,11 @@ double * sb_descriptors(
 end
   */
 
-  SB_FREE_ALL(desc, disp);
+  // Free memory
+  for (a = 0; a <= n_max; ++a) {
+    SB_MAT_FREE_ALL(lp[a], gnl[a]);
+  }
+  SB_FREE_ALL(desc, disp, lp, gnl);
   SB_VEC_FREE_ALL(radius);
   SB_MAT_FREE_ALL(gamma);
 

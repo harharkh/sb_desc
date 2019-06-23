@@ -3,5 +3,7 @@ docs.html
 libsb_descriptors.a
 sb_descriptors.zip
 sb_example
-src/sb_roots.tbl
+src/fnl_c1.tbl
+src/fnl_c2.tbl
+src/unl.tbl
 src/*.o
