@@ -25,8 +25,6 @@ static const double _u_data[10152] = {
   #include "unl.tbl"
 };
 static const size_t _u_n_max = 140;
-static const size_t _u_rows = 143;
-static const size_t _u_cols = 142;
 
 static const double _c1_data[10011] = {
   #include "c1.tbl"
@@ -60,7 +58,7 @@ static sb_mat * get_radial_basis(
     uint32_t n_atom,
     double rc) {
   // access lookup tables directly
-  const double * u_data  = _u_data  + l * _u_rows;
+  const double * u_data  = _u_data  + l * (2 * _u_n_max  - l + 5) / 2;
   const double * c1_data = _c1_data + l * (2 * _c1_n_max - l + 3) / 2;
   const double * c2_data = _c2_data + l * (2 * _c2_n_max - l + 3) / 2;
 
@@ -104,8 +102,6 @@ static sb_mat * get_radial_basis(
     cblas_daxpy(n_atom, sqrt(e / (d1 * d0)), g_data - n_atom, 1, g_data, 1);
   }
 
-  sb_mat_print(gnl, "gnl: ", "%.4g");
-  
   return gnl;
 }
 
@@ -206,13 +202,6 @@ double * sb_descriptors(
   SB_CHK_ERR(rc < 0., abort(), "sb_descriptors: rc cannot be negative");
 #endif
   // Convert raw pointers to sb_vec and sb_mat
-  sb_vec * desc = malloc(sizeof(sb_vec));
-  SB_CHK_ERR(!desc, abort(), "sb_descriptors: failed to allocate desc");
-
-  desc->n_elem = (n_max + 1) * (n_max + 2) / 2;
-  desc->data   = desc_arr;
-  desc->layout = 'c';
-
   sb_mat * disp = malloc(sizeof(sb_mat));
   SB_CHK_ERR(!disp, abort(), "sb_descriptors: failed to allocate disp");
 
@@ -221,7 +210,7 @@ double * sb_descriptors(
   disp->n_elem = 3 * n_atom;
   disp->data   = disp_arr;
 
-  double * data1, * data2;
+  double * data1, * data2, * data3;
   size_t a, b, c;
 
   // Calculate radial coordinates
@@ -263,7 +252,7 @@ double * sb_descriptors(
   }
 
   // Include multiplier here to simplify calculation below
-  for (a = 0; a <= n_max; ++a) {
+  for (a = 0; a <= n_max; ++a) { // l = a
     sb_mat_smul(lp[a], (2. * a + 1.) / 12.566370614359172);
   }
     
@@ -274,35 +263,24 @@ double * sb_descriptors(
     gnl[a] = sb_mat_malloc(n_atom, n_max - a + 1);
     get_radial_basis(gnl[a], radius->data, n_max, a, n_atom, rc);
   }
-  abort();
 
-  /*
-  c = 0;
-  for (a = 0; a <= n_max; ++a) {
-    for (b = 0; b <= a; ++b) {
-      desc[c++] = ;
+  // radius can be used for workspace
+  data1 = radius->data;
+  for (a = 0; a <= n_max; ++a) { // l = a
+    data2 = lp[a]->data;
+    data3 = gnl[a]->data;
+    for (b = a; b <= n_max; ++b) { // n = b
+      cblas_dgemv(CblasColMajor, CblasNoTrans, n_atom, n_atom,
+          1., data2, n_atom, data3 + (b - a) * n_atom, 1, 0., data1, 1);
+      desc_arr[b * (b + 1) / 2 + a] = cblas_ddot(n_atom, data3 + (b - a) * n_atom, 1, data1, 1);
     }
   }
-
-    
-    % power-spectrum calculation
-    % (np + 1, l + 1)
-    % np = n + l is the index for the power spectrum
-    % n = np - l is the index for the calculation of the basis functions
-    pnl = zeros(n_max + 1, n_max + 1);
-    for np = 1:(n_max + 1) % offset by one for indexing
-        for l = 1:np % offset by one for indexing
-            pnl(np, l) = gnl(:, np - l + 1, l)' * lp(:, :, l) * gnl(:, np - l + 1, l);
-        end
-    end
-end
-  */
 
   // Free memory
   for (a = 0; a <= n_max; ++a) {
     SB_MAT_FREE_ALL(lp[a], gnl[a]);
   }
-  SB_FREE_ALL(desc, disp, lp, gnl);
+  SB_FREE_ALL(disp, lp, gnl);
   SB_VEC_FREE_ALL(radius);
   SB_MAT_FREE_ALL(gamma);
 

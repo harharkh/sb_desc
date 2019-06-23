@@ -13,7 +13,7 @@
 
 /// An example where `sb_descriptors()` is used to calculate the spherical
 /// Bessel descriptors for an atomic environment containing four atoms; the
-/// first and second descriptors should be `0.031870` and `0.138078`.
+/// first and last descriptors should be `0.031871` and `0.483945`.
 int main(void) {
   // Sets the number of descriptors returned.
   uint32_t n_max = 4;
