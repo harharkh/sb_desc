@@ -59,22 +59,12 @@ $ make example
 $ ./sb_example
 ```
 This should print the processor time elapsed in `sb_descriptors()` (where the
-actual work is done) and 21 descriptors for the selected environment (the first
-and second descriptors should be `0.031870` and `0.138078`). Note that several
-of the arguments to `sb_descriptors()` are vectors as defined in `sb_structs.h`
-and developed in `sb_vector.h` and `sb_matrix.h`. You will need to store the
-relative atomic coordinates, atomic weights, and the resulting descriptors in
-these structures.
-
-The example shows the simplest way to do so, writing everything as arrays and
-calling `sb_vec_of_arr()` and `sb_mat_of_arr()`. If you want to work with files
-instead, `sb_vec_fprintf()`, `sb_vec_fscanf()`, `sb_mat_fprintf()`, and
-`sb_mat_fscanf()` handle reading and writing vectors and matrices in a human
-readable format. If for some reason you want to work with the vectors directly,
-you will probably need a call to `sb_vec_malloc()` to allocate a vector, and
-`sb_vec_set()` or `sb_vec_subcpy()` to set the elements. `SB_VEC_FREE_ALL()`
-and `SB_MAT_FREE_ALL()` are provided to free a set of vectors and matrices when
-you are done.
+actual work is done) and 15 descriptors for the selected environment (the first
+and last descriptors should be `0.031871` and `0.483945`). Note that several
+of the arguments to `sb_descriptors()` are arrays of doubles. You will need to
+store the relative atomic coordinates, atomic weights, and the resulting
+descriptors in this way, but the array is a fundamental enough data structure
+that most languages provide some means of doing so.
 
 All structs and functions exposed in the API have the prefix `sb` to reduce the
 chance of naming conflicts. Any functions with the prefix `_` are for internal
@@ -103,9 +93,9 @@ though, and could make understanding when you have given invalid or malformed
 input much more difficult.
 
 Finally, you could add the `-ffast-math` option to the `FLAGS` variable in the
-`makefile`. This could decrease runtime by a factor of two, but is really not
-recommended. You have no guarantee that the program will give correct results
-with this flag enabled.
+`makefile`. This could decrease runtime further, but is really not recommended.
+You have no guarantee that the program will give correct results with this flag
+enabled.
 
 ### Modules
 
