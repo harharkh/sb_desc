@@ -14,4 +14,4 @@
 #include "sb_structs.h" // sb_mat
 
 void _build_unl_tbl(sb_mat * unl, const uint32_t n_max);
-void _build_fnl_tbl(sb_mat * fnl_c1, sb_mat * fnl_c2, const uint32_t n_max);
+void _build_fnl_tbl(sb_vec * c1, sb_vec * c2, const uint32_t n_max);

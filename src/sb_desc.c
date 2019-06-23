@@ -8,8 +8,11 @@
 //! \file sb_desc.c
 //! Contains functions that actually calculate the spherical Bessel descriptors.
 
+#include <cblas.h>      // dscal
+#include <math.h>       // pow
 #include <stdint.h>     // uint32_t
 #include <stdlib.h>     // abort
+#include "sbessel.h"    // _sbessel
 #include "sb_desc.h"
 #include "sb_matrix.h"  // sb_mat_malloc
 #include "sb_structs.h" // sb_vec
@@ -17,97 +20,93 @@
 #include "sb_vector.h"  // sb_vec_calloc
 #include "safety.h"
 
-// Temporary variables used to package the lookup tables. You *really* should
-// not modify any of these variables.
-static double _unl_data[20306] = {
+// Lookup tables used in get_radial_basis. Built using function in `tables.c`.
+static const double _u_data[20306] = {
   #include "unl.tbl"
 };
-static sb_mat _unl = {143, 142, 20306, _unl_data};
-static const sb_mat * unl = &_unl;
+static const size_t _u_rows = 143;
+static const size_t _u_cols = 142;
 
-static double _fnl_c1_data[20164] = {
-  #include "fnl_c1.tbl"
+static const double _c1_data[10011] = {
+  #include "c1.tbl"
 };
-static sb_mat _fnl_c1 = {142, 142, 20164, _fnl_c1_data};
-static const sb_mat * fnl_c1 = &_fnl_c1;
+static const size_t _c1_n_max = 140;
 
-static double _fnl_c2_data[20164] = {
-  #include "fnl_c2.tbl"
+static const double _c2_data[10011] = {
+  #include "c2.tbl"
 };
-static sb_mat _fnl_c2 = {142, 142, 20164, _fnl_c2_data};
-static const sb_mat * fnl_c2 = &_fnl_c2;
+static const size_t _c2_n_max = 140;
 
-/// Halley's method to find the roots of the spherical Bessel functions of the
-/// first kind. The derivatives are calculated using recursion relations and 
-/// incorporated directly into the equation for the update.
+/// Calculates the radial basis functions for the spherical Bessel descriptors.
+/// Numerical efficiency depends heavily on the lookup tables defined above, 
+/// allowing the function to be reduced to evaluating the recursion relations.
 ///
 /// # Parameters
-/// - `l`: order of the spherical Bessel function
-/// - `lwr`: lower bound on the search interval
-/// - `upr`: upper bound on the search interval
+/// - `gnl`: pointer to a matrix to hold the result
+/// - `r_data`: radial coordinates of the atoms
+/// - `n_max`: defines the number of descriptors calculated
+/// - `l`: order of the spherical Bessel functions
+/// - `n_atom`: number of atoms in the environment
+/// - `rc`: cutoff radius for the environment
 ///
 /// # Returns
-/// Position of a root within the interval.
+/// A copy of `gnl`
 static sb_mat * get_radial_basis(
     sb_mat * gnl,
-    sb_vec * radius,
+    double * r_data,
     uint32_t n_max, 
+    uint32_t l,
     uint32_t n_atom,
     double rc) {
+  // access lookup tables directly
+  const double * u_data  = _u_data  + l * _u_rows;
+  const double * c1_data = _c1_data + l * (2 * _c1_n_max - l + 3) / 2;
+  const double * c2_data = _c2_data + l * (2 * _c2_n_max - l + 3) / 2;
 
-  printf("unl(2, 2): %g", sb_mat_get(unl, 2, 2));
+  // gnl->n_cols
+  const size_t n_cols = gnl->n_cols;
+
+  // forward declaration of variables without initializations
+  size_t n, a;
+  double u0, u1, u2, d0, d1, e;
+  double * g_data;
+
+  // fnl built in gnl
+  g_data = gnl->data;
+  for (n = 0; n < n_cols; ++n) {
+    for (a = 0; a < n_atom; ++a) {
+      g_data[a] = c1_data[n] * _sbessel(l, r_data[a] * u_data[n])
+        - c2_data[n] * _sbessel(l, r_data[a] * u_data[n + 1]);
+    }
+    g_data += n_atom;
+  }
+  sb_mat_smul(gnl, pow(rc, -1.5));
+
+  // initialize quantities used for recursion
+  u1 = SB_SQR(u_data[0]);
+  u2 = SB_SQR(u_data[1]);
+  d1 = 1.;
+
+  // convert to gnl
+  g_data = gnl->data;
+  for (n = 1; n < n_cols; ++n) {
+    u0 = u1;
+    u1 = u2;
+    u2 = SB_SQR(u_data[n + 1]);
+
+    e = (u0 * u2) / ((u0 + u1) * (u1 + u2));
+    d0 = d1;
+    d1 = 1. - e / d0;
+
+    g_data += n_atom;
+    cblas_dscal(n_atom, 1. / sqrt(d1), g_data, 1);
+    cblas_daxpy(n_atom, sqrt(e / (d1 * d0)), g_data - n_atom, 1, g_data, 1);
+  }
+
+  sb_mat_print(gnl, "gnl: ", "%.4g");
   
   return gnl;
 }
-
-/*
-    
-    % coefficients in the definition of f_{nl}
-    % (n + 1, l + 1)
-    persistent coeff_a;
-    persistent coeff_b;
-    if isempty(coeff_a) || isempty(coeff_b)
-        coeff_a = zeros(n_max + 1, n_max + 1);
-        coeff_b = zeros(n_max + 1, n_max + 1);
-        for l = 1:(n_max + 1) % offset by one for indexing
-            u = u_all(:, l);
-            for n = 1:(n_max - l + 2) % offset by one for indexing
-                c = sqrt(2. / (rc^3 * (u(n)^2 + u(n + 1)^2)));
-                coeff_a(n, l) = u(n + 1) / spherical_bessel(l, u(n)) * c;
-                coeff_b(n, l) = -u(n) / spherical_bessel(l, u(n + 1)) * c;
-            end
-        end
-    end
-    
-    e = zeros(n_max + 1, 1); % e_{0l} = 0.
-    d = ones(n_max + 1, 1); % d_{0l} = 1.
-    
-    nu = length(r);
-    gnl = zeros(nu, n_max + 1, n_max + 1);
-    
-    arg = r / rc;
-    for l = 1:(n_max + 1) % offset by one for indexing
-        u = u_all(:, l);
-        
-        for n = 2:(n_max - l + 2) % offset by one for indexing
-            e(n) = (u(n - 1)^2 * u(n + 1)^2) / ((u(n - 1)^2 + u(n)^2) * (u(n)^2 + u(n + 1)^2));
-            d(n) = 1. - e(n) / d(n - 1);
-        end
-
-        % fnl initially
-        for n = 1:(n_max - l + 2) % offset by one for indexing
-            for a = 1:nu
-                gnl(a, n, l) = coeff_a(n, l) * spherical_bessel(l - 1, arg(a) * u(n)) + coeff_b(n, l) * spherical_bessel(l - 1, arg(a) * u(n + 1));
-            end
-        end
-        
-        % converted to gnl
-        for n = 2:(n_max - l + 2) % offset by one for indexing
-            gnl(:, n, l) = (gnl(:, n, l) + sqrt(e(n) / d(n - 1)) * gnl(:, n - 1, l)) / sqrt(d(n));
-        end
-    end
-end
-*/
 
 /// Calculates spherical Bessel descriptors for the given atomic environment.
 /// `desc` should contain space for the descriptors, labelled by (n, l) and
@@ -239,6 +238,7 @@ double * sb_descriptors(
 
   // Normalize displacement vectors
   sb_mat_vdiv(disp, radius, 'c');
+  sb_vec_smul(radius, 1. / rc);
 
   // Calculate angle cosines
   sb_mat * gamma = sb_mat_malloc(n_atom, n_atom);
@@ -248,7 +248,7 @@ double * sb_descriptors(
   sb_mat * * lp = malloc((n_max + 1) * sizeof(sb_mat *));
   SB_CHK_ERR(!lp, abort(), "sb_descriptors: failed to allocate lp");
   for (a = 0; a <= n_max; ++a) {
-    lp[a] = sb_mat_calloc(n_atom, n_atom);
+    lp[a] = sb_mat_malloc(n_atom, n_atom);
   }
 
   sb_mat_set_all(lp[0], 1.);
@@ -269,10 +269,11 @@ double * sb_descriptors(
   // Radial basis functions
   sb_mat * * gnl = malloc((n_max + 1) * sizeof(sb_mat *));
   SB_CHK_ERR(!gnl, abort(), "sb_descriptors: failed to allocate gnl");
-  for (a = 0; a <= n_max; ++a) {
-    gnl[a] = sb_mat_malloc(n_atom, n_atom);
-    get_radial_basis(gnl[a], radius, n_max, n_atom, rc);
+  for (a = 0; a <= n_max; ++a) { // l = a
+    gnl[a] = sb_mat_malloc(n_atom, n_max - a + 1);
+    get_radial_basis(gnl[a], radius->data, n_max, a, n_atom, rc);
   }
+  abort();
 
   /*
   c = 0;

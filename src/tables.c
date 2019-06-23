@@ -109,10 +109,10 @@ static double halley(uint32_t l, double lwr, double upr) {
 /// 
 /// // Generates the lookup table for the roots of the spherical Bessel
 /// // functions of the first kind. WARNING: if you regenerate the table, you
-/// // need to manually remove the two leading entries of `unl.tbl` and update
-/// // the definition of `unl` in `sb_desc.c`.
+/// // need to manually remove the two leading entries of `u.tbl` and update
+/// // the definition of `_u_data`, `_u_rows` and `_u_cols` in `sb_desc.c`.
 /// int main(void) {
-///   uint32_t n_max = 141;
+///   uint32_t n_max = 140;
 /// 
 ///   // Calculate the roots for the lookup table
 ///   sb_mat * unl = sb_mat_malloc(n_max + 2, n_max + 1);
@@ -178,94 +178,88 @@ void _build_unl_tbl(sb_mat * unl, const uint32_t n_max) {
 /// in the definition of the radial basis functions.
 ///
 /// # Parameters
-/// - `fnl_c1`: matrix to hold the first set of coefficients
-/// - `fnl_c2`: matrix to hold the second set of coefficients
+/// - `c1`: pointer to vector to hold the first set of coefficients
+/// - `c2`: pointer to vector to hold the second set of coefficients
 /// - `n_max`: defines the number of coefficients calculated
 ///
 /// # Performance
 /// The following preprocessor definitions (usually in `safety.h`) enable 
 /// various safety checks:
-/// - `SAFE_MEMORY`: `fnl_c1` and `fnl_c2` are not `NULL`
-/// - `SAFE_LENGTH`: `fnl_c1` and `fnl_c2` contain n_max + 1 rows and columns
+/// - `SAFE_MEMORY`: `c1` and `c2` are not `NULL`
+/// - `SAFE_LENGTH`: `c1` and `c2` contain (n_max + 1) * (n_max + 2) / 2 elems
 ///
 /// # Examples
 /// ```
 /// #include <stdint.h>     // uint32_t
 /// #include <stdio.h>      // FILE
-/// #include "sb_matrix.h"  // sb_mat_malloc
-/// #include "sb_structs.h" // sb_mat
+/// #include "sb_structs.h" // sb_vec
+/// #include "sb_vector.h"  // sb_vec_malloc
 /// #include "tables.h"     // _build_fnl_tbl
 /// 
 /// // Generates the lookup tables for the coefficients necessary to construct
 /// // the `f_nl(x)` appearing in the definition of the radial basis functions.
 /// // WARNING: if you regenerate the tables, you need to manually remove the
-/// // two leading entries of `fnl_c1.tbl` and `fnl_c2.tbl` and update the
-/// // definitions of `fnl_c1` and `fnl_c2` in `sb_desc.c`.
+/// // two leading entries of `c1.tbl` and `c2.tbl` and update the
+/// // definitions of `c1` and `c2` in `sb_desc.c`.
 /// int main(void) {
-///   uint32_t n_max = 141;
+///   uint32_t n_max = 140;
+///   uint32_t n_elem = (n_max + 1) * (n_max + 2) / 2;
 /// 
 ///   // Calculate the coefficients
-///   sb_mat * fnl_c1 = sb_mat_malloc(n_max + 1, n_max + 1);
-///   sb_mat * fnl_c2 = sb_mat_malloc(n_max + 1, n_max + 1);
-///   _build_fnl_tbl(fnl_c1, fnl_c2, n_max);
+///   sb_vec * c1 = sb_vec_malloc(n_elem, 'c');
+///   sb_vec * c2 = sb_vec_malloc(n_elem, 'c');
+///   _build_fnl_tbl(c1, c2, n_max);
 /// 
 ///   // Write the coefficients to file
 ///   FILE * f;
 ///
-///   f = fopen("src/fnl_c1.tbl", "w");
-///   sb_mat_fprintf(f, fnl_c1, "%.16g,");
+///   f = fopen("src/c1.tbl", "w");
+///   sb_vec_fprintf(f, c1, "%.16g,");
 ///   fclose(f);
 ///
-///   f = fopen("src/fnl_c2.tbl", "w");
-///   sb_mat_fprintf(f, fnl_c2, "%.16g,");
+///   f = fopen("src/c2.tbl", "w");
+///   sb_vec_fprintf(f, c2, "%.16g,");
 ///   fclose(f);
 /// 
-///   SB_MAT_FREE_ALL(fnl_c1, fnl_c2);
+///   SB_VEC_FREE_ALL(c1, c2);
 /// }
 /// ```
-void _build_fnl_tbl(sb_mat * fnl_c1, sb_mat * fnl_c2, const uint32_t n_max) {
+void _build_fnl_tbl(sb_vec * c1, sb_vec * c2, const uint32_t n_max) {
 #ifdef SAFE_MEMORY
-  SB_CHK_ERR(!fnl_c1, abort(), "_build_fnl_tbl: fnl_c1 cannot be NULL");
-  SB_CHK_ERR(!fnl_c2, abort(), "_build_fnl_tbl: fnl_c2 cannot be NULL");
+  SB_CHK_ERR(!c1, abort(), "_build_fnl_tbl: c1 cannot be NULL");
+  SB_CHK_ERR(!c2, abort(), "_build_fnl_tbl: c2 cannot be NULL");
 #endif
-  size_t n_rows = n_max + 1;
-  size_t n_cols = n_max + 1;
+  const size_t n_elem = (n_max + 1) * (n_max + 2) / 2;
 #ifdef SAFE_LENGTH
-  SB_CHK_ERR(fnl_c1->n_rows != n_rows, abort(),
-      "_build_fnl_tbl: fnl_c1 must have n_max + 1 rows");
-  SB_CHK_ERR(fnl_c1->n_cols != n_cols, abort(),
-      "_build_fnl_tbl: fnl_c1 must have n_max + 1 cols");
-  SB_CHK_ERR(fnl_c2->n_rows != n_rows, abort(),
-      "_build_fnl_tbl: fnl_c2 must have n_max + 1 rows");
-  SB_CHK_ERR(fnl_c2->n_cols != n_cols, abort(),
-      "_build_fnl_tbl: fnl_c2 must have n_max + 1 cols");
+  SB_CHK_ERR(c1->n_elem != n_elem, abort(),
+      "_build_fnl_tbl: c1 must have (n_max + 1) * (n_max + 2) / 2 elems");
+  SB_CHK_ERR(c2->n_elem != n_elem, abort(),
+      "_build_fnl_tbl: c2 must have (n_max + 1) * (n_max + 2) / 2 elems");
 #endif
   // Calculate the necessary roots
   sb_mat * unl = sb_mat_malloc(n_max + 2, n_max + 1);
   _build_unl_tbl(unl, n_max);
 
   // forward declaration of variables without initializations
-  uint32_t n, l;
-  double c, u0, u1;
+  uint32_t n, l, c;
+  double coeff, u0, u1;
 
   // work directly with backing memory
-  double * u_data = unl->data;
-  double * c1_data = fnl_c1->data;
-  double * c2_data = fnl_c2->data;
+  double * u_data  = unl->data;
+  double * c1_data = c1->data;
+  double * c2_data = c2->data;
 
-  for (l = 0; l < n_cols; ++l) {
-    for (n = 0; n < n_rows - l; ++n) {
+  for (l = 0; l < n_max + 1; ++l) {
+    for (n = 0; n < n_max - l + 1; ++n) {
       u0 = u_data[n];
       u1 = u_data[n + 1];
-      c = sqrt(2. / (SB_SQR(u0) + SB_SQR(u1)));
-      c1_data[n] = u1 / _sbessel(l + 1, u0) * c;
-      c2_data[n] = u0 / _sbessel(l + 1, u1) * c;
+      coeff = sqrt(2. / (SB_SQR(u0) + SB_SQR(u1)));
+
+      c = l * (2 * n_max - l + 3) / 2 + n;
+      c1_data[c] = u1 / _sbessel(l + 1, u0) * coeff;
+      c2_data[c] = u0 / _sbessel(l + 1, u1) * coeff;
     }
-    // zero out rest of column, value of n persists
-    memset(u_data + n, 0, l * sizeof(double));
-    u_data = u_data + n_rows + 1;
-    c1_data = c1_data + n_rows;
-    c2_data = c2_data + n_rows;
+    u_data = u_data + n_max + 2;
   }
 
   SB_MAT_FREE_ALL(unl);
