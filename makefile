@@ -108,4 +108,4 @@ docs :
 # make clean
 #---------------------------
 clean :
-	rm -f $(OBJS) $(DBG_OBJS) $(EXAMPLE_OBJS) $(LIBRARY) $(EXAMPLE) docs.html
+	rm -f $(OBJS) $(DBG_OBJS) $(EXAMPLE_OBJS) $(LIBRARY) $(EXAMPLE) src/*.pyc docs.html

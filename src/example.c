@@ -39,7 +39,7 @@ int main(void) {
   // Cutoff radius in Angstroms.
   double rc = 3.7711; 
 
-  sb_descriptors(desc, n_max, disp, weights, n_atom, rc);
+  sb_descriptors(desc, disp, weights, rc, n_atom, n_max);
 
   // Output the result
   printf("SB descriptors:\n");

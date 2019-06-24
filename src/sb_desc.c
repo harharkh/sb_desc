@@ -113,11 +113,11 @@ static sb_mat * get_radial_basis(
 ///
 /// # Parameters
 /// - `desc`: pointer to an array to hold the result
-/// - `n_max`: defines the number of descriptors calculated
 /// - `disp`: pointer to an array of the relative displacements
 /// - `weights`: pointer to an array of the atomic weights
-/// - `n_atom`: number of atoms in the environment
 /// - `rc`: cutoff radius for the environment
+/// - `n_atom`: number of atoms in the environment
+/// - `n_max`: defines the number of descriptors calculated
 ///
 /// # Returns
 /// A copy of `desc`
@@ -142,7 +142,6 @@ static sb_mat * get_radial_basis(
 /// #include <stdio.h>      // printf
 /// #include <stdint.h>     // uint32_t
 /// #include "sb_desc.h"    // sb_descriptors
-/// #include "sb_utility.h" // SB_TIC
 /// 
 /// /// An example where `sb_descriptors()` is used to calculate the spherical
 /// /// Bessel descriptors for an atomic environment containing four atoms; the
@@ -172,9 +171,7 @@ static sb_mat * get_radial_basis(
 ///   // Cutoff radius in Angstroms.
 ///   double rc = 3.7711; 
 /// 
-///   SB_TIC;
-///   sb_descriptors(desc, n_max, disp, weights, n_atom, rc);
-///   SB_TOC;
+///   sb_descriptors(desc, disp, weights, rc, n_atom, n_max);
 /// 
 ///   // Output the result
 ///   // Labelled by (n, l), ordered lexicographically
@@ -187,11 +184,11 @@ static sb_mat * get_radial_basis(
 /// ```
 double * sb_descriptors(
     double * restrict desc_arr,
-    const uint32_t n_max, 
     double * restrict disp_arr,
     const double * restrict weights_arr,
+    const double rc,
     const uint32_t n_atom,
-    const double rc) {
+    const uint32_t n_max) {
 #ifdef SAFE_MEMORY
   SB_CHK_ERR(!desc_arr, abort(), "sb_descriptors: desc cannot be NULL");
   SB_CHK_ERR(!disp_arr, abort(), "sb_descriptors: disp cannot be NULL");
