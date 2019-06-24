@@ -99,11 +99,23 @@ directories created during the installation.
 
 ### Python
 
-A Python interface to the library is provided in `sb_desc.py`, and an example
-script in `example.py`. If you have Python and NumPy installed, you should be
-able to run this script with the following command:
+A Python interface to the library is provided in `sb_desc.py` in the `python`
+directory, and an example script in `example.py`. If you have Python and NumPy
+installed, you should be able to run this script with the following command:
 ```
-$ python src/example.py
+$ python python/example.py
+```
+This should print 15 descriptors for the selected environment (the first and
+last descriptors should be `0.031871` and `0.483945`).
+
+### MATLAB
+
+A MATLAB interface to the library is provided in `sb_desc.m` in the `matlab`
+directory, and an example script in `example.m`. If you have MATLAB installed,
+you should be able to navigate to the `matlab` directory and run this script
+with the following command:
+```
+>> example
 ```
 This should print 15 descriptors for the selected environment (the first and
 last descriptors should be `0.031871` and `0.483945`).
@@ -114,8 +126,7 @@ Some considerable effort has been expended to make the calculation as fast as
 possible. At the time of this writing there do not seem to be any other obvious
 algorithmic enhancements available in the literature, the programming language
 (C) does not use a runtime or garbage collector, and calls to efficient linear
-algebra libraries (CBLAS) are made wherever possible. The result is roughly an
-order of magnitude faster than the equivalent MATLAB code.
+algebra libraries (CBLAS) are made wherever possible.
 
 For a small speedup, you could comment out the four defines in `src/safety.h`
 before compiling the source. These control various runtime checks in the linear
