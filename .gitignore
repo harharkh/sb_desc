@@ -7,5 +7,5 @@ src/c1.tbl
 src/c2.tbl
 src/unl.tbl
 src/*.o
-src/*.pyc
-src/__pycache__
+python/*.pyc
+python/__pycache__
