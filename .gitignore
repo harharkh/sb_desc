@@ -1,6 +1,6 @@
 docs
 docs.html
-libsb_descriptors.a
+libsbdesc.so
 sb_descriptors.zip
 sb_example
 src/c1.tbl

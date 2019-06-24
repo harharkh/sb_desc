@@ -36,20 +36,20 @@ Depending on the installation, you might need to modify the `LIBS` and
 
 ### Usage
 
-This project is intended to be used as a static library by other programs. By
+This project is intended to be used as a dynamic library by other programs. By
 default, the library is installed to `/usr/local/lib` and the headers for the
-API are installed to `/usr/local/include/sb_descriptors`. These directories are 
-not necessarily on the default search path, so you should probably pass the 
-`-I/usr/local/include/sb_descriptors` and `-L/usr/local/lib` options along with
-the `-lsb_descriptors` option to your compiler. If you are not on a POSIX
-compliant system or want the library and headers installed elsewhere, modify
-the `LIBRARY_DIR` and `HEADERS_DIR` variables in the included `makefile`.
+API are installed to `/usr/local/include/sbdesc`. These directories are not
+necessarily on the default search path, so you should probably pass the 
+`-I/usr/local/include/sbdesc` and `-L/usr/local/lib` options along with the
+`-lsbdesc` option to your compiler. If you are not on a POSIX compliant system
+or want the library and headers installed elsewhere, modify the `LIBRARY_DIR`
+and `HEADERS_DIR` variables in the included `makefile`.
 
 Once the installation directories are specified, you can compile and install
 the library with the following commands:
 ```
 $ make
-$ sudo make install
+$ make install
 ```
 You should get a message indicating that everything went well. You should then
 probably try to compile and run the example program in `src/example.c` with the
@@ -60,11 +60,32 @@ $ ./sb_example
 ```
 This should print the processor time elapsed in `sb_descriptors()` (where the
 actual work is done) and 15 descriptors for the selected environment (the first
-and last descriptors should be `0.031871` and `0.483945`). Note that several
-of the arguments to `sb_descriptors()` are arrays of doubles. You will need to
-store the relative atomic coordinates, atomic weights, and the resulting
-descriptors in this way, but the array is a fundamental enough data structure
-that most languages provide some means of doing so.
+and last descriptors should be `0.031871` and `0.483945`).
+
+When executing the example program, you could instead get the following error:
+```
+./sb_example: error while loading shared libraries: libsbdesc.so: cannot open
+shared object file: No such file or directory
+```
+This indicates that your operating system is not able to find the library.
+Fortunately, there is more than one way to resolve this issue. The preferred
+option is to execute the following command (requires root privileges):
+```
+$ ldconfig /usr/local/lib/
+```
+(or the appropriate variant for a different installation directory) to update
+the shared library cache. If you don't have root privileges, you could instead
+uncomment the line:
+```
+# example : FLAGS_OPT += -Wl,-rpath=$(LIBRARY_DIR)
+```
+in the makefile and recompile the example. This includes a path to the library
+in the executable, but is less flexible in general.
+
+Note that several of the arguments to `sb_descriptors()` are arrays of doubles.
+You will need to store the relative atomic coordinates, atomic weights, and the
+resulting descriptors in this way, but the array is a fundamental enough data
+structure that most languages should provide some means of doing so.
 
 All structs and functions exposed in the API have the prefix `sb` to reduce the
 chance of naming conflicts. Any functions with the prefix `_` are for internal

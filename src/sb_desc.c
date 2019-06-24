@@ -53,7 +53,6 @@ static const size_t _c2_n_max = 140;
 static sb_mat * get_radial_basis(
     sb_mat * gnl,
     double * r_data,
-    uint32_t n_max, 
     uint32_t l,
     uint32_t n_atom,
     double rc) {
@@ -215,7 +214,7 @@ double * sb_descriptors(
   disp->data   = disp_arr;
 
   double * data1, * data2, * data3;
-  size_t a, b, c;
+  size_t a, b;
 
   // Calculate radial coordinates
   sb_vec * radius = sb_vec_calloc(n_atom, 'r');
@@ -265,7 +264,11 @@ double * sb_descriptors(
   SB_CHK_ERR(!gnl, abort(), "sb_descriptors: failed to allocate gnl");
   for (a = 0; a <= n_max; ++a) { // l = a
     gnl[a] = sb_mat_malloc(n_atom, n_max - a + 1);
-    get_radial_basis(gnl[a], radius->data, n_max, a, n_atom, rc);
+    get_radial_basis(gnl[a], radius->data, a, n_atom, rc);
+    // Scale by the weights
+    for (b = 0; b < n_atom; ++b) {
+      cblas_dscal(gnl[a]->n_cols, weights_arr[b], gnl[a]->data + b, n_atom);
+    }
   }
 
   // radius can be used for workspace

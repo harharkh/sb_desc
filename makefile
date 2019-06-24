@@ -8,9 +8,9 @@ INCL_DIR_OPT =
 LIBS = -lm -lcblas
 LIBS_DIR_OPT = 
 
-LIBRARY = libsb_descriptors.a
+LIBRARY = libsbdesc.so
 LIBRARY_DIR = /usr/local/lib
-HEADERS_DIR = /usr/local/include/sb_desc
+HEADERS_DIR = /usr/local/include/sbdesc
 EXAMPLE = sb_example
 
 #------------------------
@@ -25,6 +25,7 @@ EXAMPLE_SRCS = example.c
 CC   	    = gcc
 FLAGS     = -std=c11 -O3
 DBG_FLAGS = -g -Wall -Wextra -Wfatal-errors
+FLAGS_OPT =
 
 OBJS = $(patsubst %.c, $(SRC_DIR)/%.o, $(SRCS))
 DBG_OBJS = $(patsubst %.c, $(SRC_DIR)/%.do, $(SRCS))
@@ -32,7 +33,7 @@ EXAMPLE_OBJS = $(patsubst %.c, $(SRC_DIR)/%.o, $(EXAMPLE_SRCS))
 
 HEADERS = $(wildcard $(SRC_DIR)/sb_*.h)
 
-LIBS += $(patsubst lib%.a, -l%, $(LIBRARY))
+LIBS += $(patsubst lib%.so, -l%, $(LIBRARY))
 LIBS_DIR_OPT += -L$(LIBRARY_DIR)
 LIB_PATH = $(LIBRARY_DIR)/$(LIBRARY)
 
@@ -41,14 +42,16 @@ LIB_PATH = $(LIBRARY_DIR)/$(LIBRARY)
 #---------------------------
 # make
 #---------------------------
+default : FLAGS_OPT += -fPIC
 default : $(OBJS)
-	rm -f $(LIBRARY); ar rcs $(LIBRARY) $(OBJS)
+	rm -f $(LIBRARY); $(CC) -shared -o $(LIBRARY) $(OBJS)
 
 #---------------------------
 # make debug
 #---------------------------
+debug : FLAGS_OPT += -fPIC
 debug : $(DBG_OBJS)
-	rm -f $(LIBRARY); ar rcs $(LIBRARY) $(DBG_OBJS)
+	rm -f $(LIBRARY); $(CC) -shared -o $(LIBRARY) $(DBG_OBJS)
 
 #---------------------------
 # make install
@@ -78,9 +81,10 @@ uninstall :
 #---------------------------
 # make example
 #---------------------------
+# example : FLAGS_OPT += -Wl,-rpath=$(LIBRARY_DIR)
 example : INCL_DIR_OPT += -I$(HEADERS_DIR)
 example : $(EXAMPLE_OBJS) $(LIB_PATH)
-	$(CC) $(FLAGS) $(EXAMPLE_OBJS) -o $(EXAMPLE) $(LIBS_DIR_OPT) $(LIBS)
+	$(CC) $(FLAGS) $(FLAGS_OPT) -o $(EXAMPLE) $(EXAMPLE_OBJS) $(LIBS_DIR_OPT) $(LIBS)
 
 #---------------------------
 # make docs
@@ -95,10 +99,10 @@ docs :
 # make requirements
 #---------------------------
 %.o : %.c
-	$(CC) -c $(FLAGS) $(INCL_DIR_OPT) $< -o $@
+	$(CC) -c $(FLAGS) $(FLAGS_OPT) $(INCL_DIR_OPT) $< -o $@
 
 %.do : %.c
-	$(CC) -c $(DBG_FLAGS) $(INCL_DIR_OPT) $< -o $@
+	$(CC) -c $(FLAGS) $(DBG_FLAGS) $(FLAGS_OPT) $(INCL_DIR_OPT) $< -o $@
 
 #---------------------------
 # make clean
