@@ -109,7 +109,8 @@ static sb_mat * get_radial_basis(
 /// ordered lexicographically. `disp` should contain the relative Cartesian 
 /// coordinates of the surrouding atoms in the format `[x_1, y_1, z_1, ...]`.
 /// `weights` should contain the weights used in the construction of the
-/// neighbor density function (e.g., `[1., ...]`).
+/// neighbor density function (e.g., `[1., ...]`). `restrict` is not used to
+/// help with portability.
 ///
 /// # Parameters
 /// - `desc`: pointer to an array to hold the result
