@@ -10,16 +10,6 @@ An example that uses the sb_desc module to interface with the `libsbdesc.so`
 library. Identical in operation to `example.c`. You could need to change the
 definition of `sb_desc_fun` if you installed the library in a non-standard 
 location.
-
-The NumPy installation available through my package manager (Debian Stretch)
-does not appear to link to `libcblas.so`. The command:
-
-LD_PRELOAD=/usr/lib/libcblas.so python src/example.py
-
-forces the appropriate library to be preloaded though, and the script below
-works. Perhaps this is due to the packages available through the repositories
-being compiled in a particular environment, and compiling from source would
-resolve the issue.
 '''
 
 import numpy as np

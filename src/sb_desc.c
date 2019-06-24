@@ -183,9 +183,9 @@ static sb_mat * get_radial_basis(
 /// }
 /// ```
 double * sb_descriptors(
-    double * restrict desc_arr,
-    double * restrict disp_arr,
-    const double * restrict weights_arr,
+    double * desc_arr,
+    double * disp_arr,
+    const double * weights_arr,
     const double rc,
     const uint32_t n_atom,
     const uint32_t n_max) {

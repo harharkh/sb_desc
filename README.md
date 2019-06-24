@@ -108,18 +108,6 @@ $ python src/example.py
 This should print 15 descriptors for the selected environment (the first and
 last descriptors should be `0.031871` and `0.483945`).
 
-When executing the example script, you could instead get the following error:
-```
-OSError: /usr/local/lib/libsbdesc.so: undefined symbol: cblas_dscal
-```
-This indicates that your Python installation is not able to find a `cblas`
-library. You can resolve this with the following command:
-```
-LD_PRELOAD=/usr/lib/libcblas.so python src/example.py
-```
-(or the appropriate variant for a different installation directory) to force
-the appropriate library to be preloaded.
-
 ### Performance
 
 Some considerable effort has been expended to make the calculation as fast as

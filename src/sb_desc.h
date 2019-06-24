@@ -13,9 +13,9 @@
 #include <stdint.h>     // uint32_t
 
 double * sb_descriptors(
-    double * restrict desc,
-    double * restrict disp,
-    const double * restrict weights,
+    double * desc,
+    double * disp,
+    const double * weights,
     const double rc,
     const uint32_t n_atom, 
     const uint32_t n_max);

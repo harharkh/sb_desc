@@ -33,7 +33,6 @@ EXAMPLE_OBJS = $(patsubst %.c, $(SRC_DIR)/%.o, $(EXAMPLE_SRCS))
 
 HEADERS = $(wildcard $(SRC_DIR)/sb_*.h)
 
-LIBS += $(patsubst lib%.so, -l%, $(LIBRARY))
 LIBS_DIR_OPT += -L$(LIBRARY_DIR)
 LIB_PATH = $(LIBRARY_DIR)/$(LIBRARY)
 
@@ -44,14 +43,14 @@ LIB_PATH = $(LIBRARY_DIR)/$(LIBRARY)
 #---------------------------
 default : FLAGS_OPT += -fPIC
 default : $(OBJS)
-	rm -f $(LIBRARY); $(CC) -shared -o $(LIBRARY) $(OBJS)
+	rm -f $(LIBRARY); $(CC) -shared -o $(LIBRARY) $(OBJS) $(LIBS)
 
 #---------------------------
 # make debug
 #---------------------------
 debug : FLAGS_OPT += -fPIC
 debug : $(DBG_OBJS)
-	rm -f $(LIBRARY); $(CC) -shared -o $(LIBRARY) $(DBG_OBJS)
+	rm -f $(LIBRARY); $(CC) -shared -o $(LIBRARY) $(DBG_OBJS) $(LIBS)
 
 #---------------------------
 # make install
@@ -83,6 +82,7 @@ uninstall :
 #---------------------------
 # example : FLAGS_OPT += -Wl,-rpath=$(LIBRARY_DIR)
 example : INCL_DIR_OPT += -I$(HEADERS_DIR)
+example : LIBS += $(patsubst lib%.so, -l%, $(LIBRARY))
 example : $(EXAMPLE_OBJS) $(LIB_PATH)
 	$(CC) $(FLAGS) $(FLAGS_OPT) -o $(EXAMPLE) $(EXAMPLE_OBJS) $(LIBS_DIR_OPT) $(LIBS)
 
@@ -108,4 +108,5 @@ docs :
 # make clean
 #---------------------------
 clean :
-	rm -f $(OBJS) $(DBG_OBJS) $(EXAMPLE_OBJS) $(LIBRARY) $(EXAMPLE) src/*.pyc docs.html
+	rm -rf $(OBJS) $(DBG_OBJS) $(EXAMPLE_OBJS) $(LIBRARY) $(EXAMPLE) \
+		src/*.pyc src/__pycache__ docs.html

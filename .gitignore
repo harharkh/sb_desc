@@ -8,3 +8,4 @@ src/c2.tbl
 src/unl.tbl
 src/*.o
 src/*.pyc
+src/__pycache__
