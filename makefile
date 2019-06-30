@@ -109,4 +109,10 @@ docs :
 #---------------------------
 clean :
 	rm -rf $(OBJS) $(DBG_OBJS) $(EXAMPLE_OBJS) $(LIBRARY) $(EXAMPLE) \
-		src/*.pyc src/__pycache__ docs.html
+		python/*.pyc python/__pycache__ docs.html
+
+#---------------------------
+# make clean_docs
+#---------------------------
+clean_docs :
+	rm -rf docs
