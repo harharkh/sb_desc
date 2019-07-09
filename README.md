@@ -2,8 +2,9 @@
 
 `sb_descriptors` is a C library to calculate the spherical Bessel descriptors 
 defined by E. Kocer, J. K. Mason, and H. Erturk in [Kocer 2019 a][Kocer2019a]
-and [Kocer 2019 b]. The intention is for these to be used to describe local
-atomic environments as is necessary for, e.g., machine learning potentials.
+and [Kocer 2019 b][Kocer2019b]. The intention is for these to be used to
+describe local atomic environments as is necessary for, e.g., machine learning
+potentials.
 
 The main contribution of this library is the efficient calculation of radial
 basis functions based on the eponymous spherical Bessel functions of the first
@@ -170,6 +171,7 @@ be dual licensed as above, without any additional terms or conditions.
 Jeremy Mason (jkmason@ucdavis.edu)
 
 [Kocer2019a]: https://aip.scitation.org/doi/10.1063/1.5086167
+[Kocer2019b]: https://arxiv.org/abs/1907.02384
 [Lentz1990]: https://doi.org/10.1063/1.168382
 [ATLAS]: http://math-atlas.sourceforge.net/
 [OpenBLAS]: http://www.openblas.net/
