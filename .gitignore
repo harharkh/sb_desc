@@ -3,9 +3,6 @@ docs.html
 libsbdesc.so
 sb_descriptors.zip
 sb_example
-src/c1.tbl
-src/c2.tbl
-src/unl.tbl
 src/*.o
 python/*.pyc
 python/__pycache__
